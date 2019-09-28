@@ -1,6 +1,6 @@
 Package: WJSmisc
 Title: Miscellaneous functions from W. Joel Schneider
-Version: 0.0.0.9000
+Version: 0.1
 Authors@R: 
     person(given = "W. Joel",
            family = "Schneider",
