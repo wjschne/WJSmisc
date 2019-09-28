@@ -15,3 +15,5 @@ RoxygenNote: 6.1.1
 Imports: 
     ggplot2,
     truncnorm
+URL: https://github.com/wjschne/WJSmisc
+BugReports: https://github.com/wjschne/WJSmisc/issues
