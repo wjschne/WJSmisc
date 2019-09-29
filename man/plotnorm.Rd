@@ -30,3 +30,6 @@ plotnorm(x, mu, sigma, below = TRUE, show_proportion = TRUE,
 \description{
 Plot a normal distribution shading below x
 }
+\examples{
+plotnorm(90, 100, 15)
+}

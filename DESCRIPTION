@@ -14,6 +14,20 @@ LazyData: true
 RoxygenNote: 6.1.1
 Imports: 
     ggplot2,
-    truncnorm
+    truncnorm,
+    magrittr,
+    tibble,
+    stringr,
+    dplyr,
+    tidyr,
+    forcats,
+    patchwork,
+    psych,
+    superheat,
+    corrr,
+    rlang (>= 0.1.2),
+    GPArotation
 URL: https://github.com/wjschne/WJSmisc
 BugReports: https://github.com/wjschne/WJSmisc/issues
+Suggests: 
+    roxygen2
