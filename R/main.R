@@ -362,7 +362,7 @@ proportion_round <- function(p, digits = 2) {
 #' @export
 #'
 #' @examples
-#' proportion2percentile(0.01111)
+#' proportion2percentile(0.011111)
 
 proportion2percentile <- function(p,
                                   digits = 2,
