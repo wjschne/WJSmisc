@@ -5,7 +5,8 @@
 \title{Title}
 \usage{
 cor_heat(d, test_names = colnames(d), margins = 0.55, text_size = 4,
-  ...)
+  dendrograms = TRUE, palette_col = c("firebrick", "white",
+  "royalblue"), x_label_angle = 90, reorder_vars = TRUE, ...)
 }
 \arguments{
 \item{d}{Data}
@@ -15,6 +16,14 @@ cor_heat(d, test_names = colnames(d), margins = 0.55, text_size = 4,
 \item{margins}{Width of margins for labels}
 
 \item{text_size}{Size of text}
+
+\item{dendrograms}{If TRUE, add dendrograms}
+
+\item{palette_col}{A vector of three colors for heatmap}
+
+\item{x_label_angle}{Angle of x-axis label}
+
+\item{reorder_vars}{If TRUE, reorder variables based on cluster analysis}
 
 \item{...}{Additional parameters passed to superheat::superheat}
 }

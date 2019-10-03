@@ -256,12 +256,20 @@ rho
 #' @param test_names Vector of names of variables
 #' @param margins Width of margins for labels
 #' @param text_size Size of text
+#' @param dendrograms If TRUE, add dendrograms
+#' @param palette_col A vector of three colors for heatmap
+#' @param x_label_angle Angle of x-axis label
+#' @param reorder_vars If TRUE, reorder variables based on cluster analysis
 #' @param ... Additional parameters passed to superheat::superheat
 cor_heat <- function(
   d,
   test_names = colnames(d),
   margins = 0.55,
   text_size = 4,
+  dendrograms = TRUE,
+  palette_col = c("firebrick", "white", "royalblue"),
+  x_label_angle = 90,
+  reorder_vars = TRUE,
   ...) {
   r <- stats::cor(d, use = "pairwise")
 
@@ -273,21 +281,105 @@ cor_heat <- function(
     X = r,
     X.text = cor_text(r),
     X.text.size = text_size,
-    col.dendrogram = T,
-    row.dendrogram = T,
+    col.dendrogram = dendrograms & reorder_vars,
+    row.dendrogram = dendrograms & reorder_vars,
     smooth.heat = F,
-    heat.pal = c("firebrick", "white", "royalblue"),
+    heat.pal = palette_col,
     heat.lim = c(-1, 1),
     heat.pal.values = c(0, .5, 1),
     legend = F,
-    bottom.label.text.angle = 90,
+    bottom.label.text.angle = x_label_angle,
     heat.na.col = "white",
     bottom.label.size = margins,
     left.label.size = margins,
     left.label.text.size = text_size,
     bottom.label.text.size = text_size,
     padding = 0,
+    pretty.order.rows = reorder_vars,
+    pretty.order.cols = reorder_vars,
     ...
   )
+}
+
+#' APA p-value rounding
+#'
+#' @param p probabiity
+#' @param inline to be used in an inline rmarkdown (default is FALSE)
+#' @param mindigits minimum rounding digits
+#' @param maxdigits maximum rounding digits
+#'
+#' @return character
+#' @export
+#'
+#' @examples
+#' pvalueAPA(0.01111)
+
+pvalueAPA <- function(p, inline = FALSE, mindigits = 2, maxdigits = 3){
+  p.round <- ifelse(p > 0.5 * 10 ^ (-1 * mindigits),mindigits,maxdigits)
+  if (p > 0.5 * 10 ^ (-1 * p.round)) {
+    paste0(ifelse(inline,"$p=", ""),
+           sub(pattern = "0.",
+               replacement = ".",
+               formatC(p, p.round, format = "f")),
+           ifelse(inline,"$", ""))
+  } else {
+    paste0(ifelse(inline, "$p<","<"),
+           sub(pattern = "0.",
+               replacement =  ".",
+               10 ^ (-1 * maxdigits)),
+           ifelse(inline,"$",""))
+  }
+}
+
+#' Rounds proportions to significant digits both near 0 and 1
+#'
+#' @param p probabiity
+#' @param digits rounding digits
+#'
+#' @return numeric vector
+#' @export
+#'
+#' @examples
+#' proportion_round(0.01111)
+
+proportion_round <- function(p, digits = 2) {
+  p1 <- round(p, digits)
+  lower_limit <- 0.95 * 10 ^ (-1 * digits)
+  upper_limit <- 1 - lower_limit
+  p1[p > upper_limit & p <= 1] <- 1 - signif(1 - p[p > upper_limit & p <= 1], digits - 1)
+  p1[p < lower_limit & p >= 0] <- signif(p[p < lower_limit & p >= 0], digits - 1)
+  p1
+}
+
+#' Rounds proportions to significant digits both near 0 and 1, then converts to percentiles
+#'
+#' @param p probabiity
+#' @param digits rounding digits
+#' @param remove_leading_zero If TRUE, remove leading zero
+#' @param add_percent_character If TRUE, add percent character
+#'
+#' @return chracter vector
+#' @export
+#'
+#' @examples
+#' proportion2percentile(0.01111)
+
+proportion2percentile <- function(p,
+                                  digits = 2,
+                                  remove_leading_zero = TRUE,
+                                  add_percent_character = FALSE) {
+  p1 <- as.character(100 * proportion_round(p, digits = digits))
+  if (remove_leading_zero) {
+    p1 <- gsub(pattern = "^0\\.",
+               replacement = ".",
+               x = p1)
+  }
+
+  if (add_percent_character) {
+    p1 <- paste0(p1,"%")
+  }
+
+  p1
+
 }
 
