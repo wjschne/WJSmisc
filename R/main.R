@@ -383,3 +383,39 @@ proportion2percentile <- function(p,
 
 }
 
+
+#' Random beta distribution with specified mean and sd
+#'
+#' @param n Number of data points
+#' @param mu Mean of random beta distribution
+#' @param sigma SD of random beta distribution
+#'
+#' @return a vector of numeric values
+#' @export
+#'
+#' @examples
+#' rbeta_ms(n = 5, mu = 0.8, sigma = 0.1)
+rbeta_ms <- function(n = 1,
+                     mu = 0.5,
+                     sigma = 0.025) {
+  if (sigma == 0)
+    return(rep(mu, n))
+
+  # Check to make sure mu is between 0 and 1
+  if (mu >= 1 | mu <= 0)
+    stop("mu must be between 0 and 1.")
+  # variance
+  v <- sigma ^ 2
+  # Check to make sure the variance is not impossibly large
+  if (v > mu * (1 - mu))
+    stop("sigma is too large. sigma cannot be larger than mu * (1 - m).")
+
+  # Hits
+  a <- mu * ((mu * (1 - mu) / v) - 1)
+  # Misses
+  b <- (1 - mu) * a / mu
+  # Random data
+  stats::rbeta(n, a, b)
+}
+
+

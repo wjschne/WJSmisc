@@ -22,11 +22,12 @@ remotes::install_github("wjschne/WJSmisc")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+I often need to create a normal distribution with a shaded region below
+a point.
 
 ``` r
 library(WJSmisc)
-plotnorm(90, mu = 100, sigma = 15)
+plotnorm(95, mu = 100, sigma = 15)
 ```
 
 <img src="man/figures/README-example-1.png" width="100%" />
@@ -46,4 +47,4 @@ d <- sim_standardized(
 cor_heat(d, margins = 0.1)
 ```
 
-<img src="man/figures/README-example-2.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />

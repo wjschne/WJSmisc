@@ -9,25 +9,25 @@ Authors@R:
            comment = c(ORCID = "0000-0002-8393-5316"))
 Description: Several functions I find useful.
 License: CC0
+URL: https://github.com/wjschne/WJSmisc
+BugReports: https://github.com/wjschne/WJSmisc/issues
+Imports: 
+    corrr,
+    dplyr,
+    forcats,
+    ggplot2,
+    magrittr,
+    patchwork,
+    psych,
+    rlang (>= 0.1.2),
+    stats,
+    stringr,
+    superheat,
+    tibble,
+    tidyr,
+    GPArotation
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
-Imports: 
-    ggplot2,
-    truncnorm,
-    magrittr,
-    tibble,
-    stringr,
-    dplyr,
-    tidyr,
-    forcats,
-    patchwork,
-    psych,
-    superheat,
-    corrr,
-    rlang (>= 0.1.2),
-    GPArotation
-URL: https://github.com/wjschne/WJSmisc
-BugReports: https://github.com/wjschne/WJSmisc/issues
 Suggests: 
-    roxygen2
+    testthat (>= 2.1.0)

@@ -23,5 +23,5 @@ chracter vector
 Rounds proportions to significant digits both near 0 and 1, then converts to percentiles
 }
 \examples{
-proportion2percentile(0.01111)
+proportion2percentile(0.011111)
 }

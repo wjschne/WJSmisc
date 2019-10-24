@@ -9,7 +9,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
-  out.width = "100%"
+  out.width = "100%", 
+  dpi = 300
 )
 ```
 
@@ -30,11 +31,15 @@ remotes::install_github("wjschne/WJSmisc")
 ```
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+I often need to create a normal distribution with a shaded region below a point.
 
 ```{r example}
 library(WJSmisc)
-plotnorm(90, mu = 100, sigma = 15)
+plotnorm(95, mu = 100, sigma = 15)
+
+```
+
+```{r}
 library(simstandard)
 model <- "
 A =~ 0.71 * A_1 + 0.91 * A_2 + 0.85 * A_3
@@ -48,5 +53,4 @@ d <- sim_standardized(
   error = FALSE)
 cor_heat(d, margins = 0.1)
 ```
-
 

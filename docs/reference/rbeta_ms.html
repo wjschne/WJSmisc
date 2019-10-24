@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • WJSmisc</title>
+<title>Random beta distribution with specified mean and sd — rbeta_ms • WJSmisc</title>
 
 
 <!-- jquery -->
@@ -35,7 +35,9 @@
 
 
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Random beta distribution with specified mean and sd — rbeta_ms" />
+<meta property="og:description" content="Random beta distribution with specified mean and sd" />
+<meta name="twitter:card" content="summary" />
 
 
 
@@ -54,7 +56,7 @@
   </head>
 
   <body>
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -101,96 +103,51 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Random beta distribution with specified mean and sd</h1>
+    <small class="dont-index">Source: <a href='https://github.com/wjschne/WJSmisc/blob/master/R/main.R'><code>R/main.R</code></a></small>
+    <div class="hidden name"><code>rbeta_ms.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p>Random beta distribution with specified mean and sd</p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+    <pre class="usage"><span class='fu'>rbeta_ms</span>(<span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>mu</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>sigma</span> <span class='kw'>=</span> <span class='fl'>0.025</span>)</pre>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      <tr>
-        
-        <td>
-          <p><code><a href="composite_covariance.html">composite_covariance()</a></code> </p>
-        </td>
-        <td><p>Computes covariances of composite scores given a covariance matrix and a weight matrix</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="cor_heat.html">cor_heat()</a></code> </p>
-        </td>
-        <td><p>Title</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="cor_text.html">cor_text()</a></code> </p>
-        </td>
-        <td><p>Format text of a correlation matrix</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="pdf2svg.html">pdf2svg()</a></code> </p>
-        </td>
-        <td><p>Function that converts pdf files to svg. Must have the pdf2svg program installed (https://github.com/dawbarton/pdf2svg)</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="plotnorm.html">plotnorm()</a></code> </p>
-        </td>
-        <td><p>Plot a normal distribution shading below x</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="plot_loading.html">plot_loading()</a></code> </p>
-        </td>
-        <td><p>Creats a plot of factor loadings</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="proportion2percentile.html">proportion2percentile()</a></code> </p>
-        </td>
-        <td><p>Rounds proportions to significant digits both near 0 and 1, then converts to percentiles</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="proportion_round.html">proportion_round()</a></code> </p>
-        </td>
-        <td><p>Rounds proportions to significant digits both near 0 and 1</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="pvalueAPA.html">pvalueAPA()</a></code> </p>
-        </td>
-        <td><p>APA p-value rounding</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="rbeta_ms.html">rbeta_ms()</a></code> </p>
-        </td>
-        <td><p>Random beta distribution with specified mean and sd</p></td>
-      </tr>
-    </tbody>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>n</th>
+      <td><p>Number of data points</p></td>
+    </tr>
+    <tr>
+      <th>mu</th>
+      <td><p>Mean of random beta distribution</p></td>
+    </tr>
+    <tr>
+      <th>sigma</th>
+      <td><p>SD of random beta distribution</p></td>
+    </tr>
     </table>
-  </div>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>a vector of numeric values</p>
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'>rbeta_ms</span>(<span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>mu</span> <span class='kw'>=</span> <span class='fl'>0.8</span>, <span class='kw'>sigma</span> <span class='kw'>=</span> <span class='fl'>0.1</span>)</div><div class='output co'>#&gt; [1] 0.9274277 0.7669454 0.9764744 0.8006785 0.7118301</div></pre>
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#section-all-functions">All functions</a></li>
+      <li><a href="#arguments">Arguments</a></li>
+      <li><a href="#value">Value</a></li>
+      <li><a href="#examples">Examples</a></li>
     </ul>
+
   </div>
 </div>
 
