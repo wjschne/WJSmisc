@@ -2,15 +2,6 @@
 % Please edit documentation in R/utils-tidy-eval.R
 \name{tidyeval}
 \alias{tidyeval}
-\alias{expr}
-\alias{enquo}
-\alias{enquos}
-\alias{sym}
-\alias{syms}
-\alias{.data}
-\alias{:=}
-\alias{as_name}
-\alias{as_label}
 \title{Tidy eval helpers}
 \description{
 \itemize{

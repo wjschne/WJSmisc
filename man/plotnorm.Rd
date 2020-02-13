@@ -4,9 +4,17 @@
 \alias{plotnorm}
 \title{Plot a normal distribution shading below x}
 \usage{
-plotnorm(x, mu, sigma, below = TRUE, show_proportion = TRUE,
-  show_x = TRUE, show_param = TRUE, text_size = 14,
-  shade_fill = "royalblue")
+plotnorm(
+  x,
+  mu,
+  sigma,
+  below = TRUE,
+  show_proportion = TRUE,
+  show_x = TRUE,
+  show_param = TRUE,
+  text_size = 14,
+  shade_fill = "royalblue"
+)
 }
 \arguments{
 \item{x}{number to divide normal distribution}

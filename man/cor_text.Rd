@@ -4,8 +4,7 @@
 \alias{cor_text}
 \title{Format text of a correlation matrix}
 \usage{
-cor_text(r, digits = 2, remove_leading_zero = TRUE,
-  remove_diagonal = FALSE)
+cor_text(r, digits = 2, remove_leading_zero = TRUE, remove_diagonal = FALSE)
 }
 \arguments{
 \item{r}{a matrix of correlations}

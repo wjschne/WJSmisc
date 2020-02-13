@@ -4,9 +4,19 @@
 \alias{cor_heat}
 \title{Title}
 \usage{
-cor_heat(d, test_names = colnames(d), margins = 0.55, text_size = 4,
-  dendrograms = TRUE, palette_col = c("firebrick", "white",
-  "royalblue"), x_label_angle = 90, reorder_vars = TRUE, ...)
+cor_heat(
+  d,
+  test_names = colnames(d),
+  margins = 0.55,
+  text_size = 4,
+  dendrograms = TRUE,
+  palette_col = c("firebrick", "white", "royalblue"),
+  x_label_angle = 90,
+  reorder_vars = TRUE,
+  heat.lim = c(-1, 1),
+  heat.pal.values = seq(0, 1, 1/(length(palette_col) - 1)),
+  ...
+)
 }
 \arguments{
 \item{d}{Data}
@@ -24,6 +34,10 @@ cor_heat(d, test_names = colnames(d), margins = 0.55, text_size = 4,
 \item{x_label_angle}{Angle of x-axis label}
 
 \item{reorder_vars}{If TRUE, reorder variables based on cluster analysis}
+
+\item{heat.lim}{Vector of the lower and upper bounds on heat map}
+
+\item{heat.pal.values}{Vector of values of where on the scale each color in palette_col falls. Defaults to even spacing.}
 
 \item{...}{Additional parameters passed to superheat::superheat}
 }

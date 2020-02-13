@@ -4,8 +4,12 @@
 \alias{proportion2percentile}
 \title{Rounds proportions to significant digits both near 0 and 1, then converts to percentiles}
 \usage{
-proportion2percentile(p, digits = 2, remove_leading_zero = TRUE,
-  add_percent_character = FALSE)
+proportion2percentile(
+  p,
+  digits = 2,
+  remove_leading_zero = TRUE,
+  add_percent_character = FALSE
+)
 }
 \arguments{
 \item{p}{probabiity}

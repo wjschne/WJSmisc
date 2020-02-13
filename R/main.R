@@ -260,6 +260,8 @@ rho
 #' @param palette_col A vector of three colors for heatmap
 #' @param x_label_angle Angle of x-axis label
 #' @param reorder_vars If TRUE, reorder variables based on cluster analysis
+#' @param heat.lim Vector of the lower and upper bounds on heat map
+#' @param heat.pal.values Vector of values of where on the scale each color in palette_col falls. Defaults to even spacing.
 #' @param ... Additional parameters passed to superheat::superheat
 cor_heat <- function(
   d,
@@ -270,6 +272,8 @@ cor_heat <- function(
   palette_col = c("firebrick", "white", "royalblue"),
   x_label_angle = 90,
   reorder_vars = TRUE,
+  heat.lim = c(-1, 1),
+  heat.pal.values = seq(0,1, 1 / (length(palette_col) - 1)),
   ...) {
   r <- stats::cor(d, use = "pairwise")
 
@@ -285,8 +289,8 @@ cor_heat <- function(
     row.dendrogram = dendrograms & reorder_vars,
     smooth.heat = F,
     heat.pal = palette_col,
-    heat.lim = c(-1, 1),
-    heat.pal.values = c(0, .5, 1),
+    heat.lim = heat.lim,
+    heat.pal.values = heat.pal.values,
     legend = F,
     bottom.label.text.angle = x_label_angle,
     heat.na.col = "white",
@@ -370,9 +374,7 @@ proportion2percentile <- function(p,
                                   add_percent_character = FALSE) {
   p1 <- as.character(100 * proportion_round(p, digits = digits))
   if (remove_leading_zero) {
-    p1 <- gsub(pattern = "^0\\.",
-               replacement = ".",
-               x = p1)
+    p1 <- remove_leading_zero(p1)
   }
 
   if (add_percent_character) {
@@ -418,4 +420,191 @@ rbeta_ms <- function(n = 1,
   stats::rbeta(n, a, b)
 }
 
+
+#' Make latent variable indicators with rbeta_ms function
+#'
+#' @param latent name of latent variable
+#' @param indicators vector of indicator names (assigned automatically if left NULL)
+#' @param mu mean of standardized coefficients
+#' @param sigma sd of standardized coeficients
+#' @param k number of indicator variables
+#' @param digits number of digits to round coefficients
+#'
+#' @return lavaan code for latent variable assignment
+#' @export
+#'
+#' @examples
+#' make_indicators("depression", mu = 0.8, sigma = 0.05, k = 4)
+make_indicators <- function(latent, indicators = NULL, mu = 0.8, sigma = 0.05, k = 3, digits = 3) {
+  if (is.null(indicators)) indicators <- paste0(latent,"_",1:k)
+  if (length(mu) == 1) mu <- rep(mu, length(indicators))
+  if (length(sigma) == 1) sigma <- rep(sigma, length(indicators))
+
+  loadings <- round(purrr::pmap_dbl(list(mu = mu,sigma = sigma), rbeta_ms), digits = digits)
+  ll <- paste0(loadings," * ", indicators, collapse = " + ")
+  paste0(latent, " =~ ", ll)
+}
+
+
+#' ggplot of parallel analysis from the psych package
+#'
+#' @param d data to be analyzed
+#' @param fm factor method passed to psych::fa.parallel
+#' @param vcolors vector of 2 colors for lines
+#' @param ... parameters passed to psych::fa.parallel
+#' @importFrom rlang .data
+#' @import ggplot2
+#' @return
+#' @export
+#'
+#' @examples
+#' d <- psych::bfi[,1:25]
+#' parallel_analysis(d)
+parallel_analysis <- function(d, fm = "pa", vcolors = c("firebrick", "royalblue"), ...) {
+  invisible(utils::capture.output( pa <- psych::fa.parallel(d, fm = fm, plot = F, ...)))
+  x <- pa$nfact
+  y <- pa$fa.values[pa$nfact]
+  tibble::tibble(
+    `Observed Data` = pa$fa.values,
+    `Simulated Data` = pa$fa.sim,
+    Factors = seq_along(pa$fa.values)
+  ) %>%
+    tidyr::gather("Type", "Eigenvalues",-.data$Factors) %>%
+    ggplot(aes(.data$Factors,
+               .data$Eigenvalues,
+               color = .data$Type)) +
+    geom_line() +
+    geom_point() +
+    theme_minimal(base_family = "serif") +
+    scale_color_manual(NULL, values = vcolors) +
+    scale_x_continuous("Eigenvalues", minor_breaks = NULL, breaks = seq_along(pa$fa.values)) +
+    scale_y_continuous("Factors") +
+    theme(
+      legend.position = c(1, 1),
+      legend.justification = c(1, 1),
+      legend.background = element_rect(fill = "white", color = NA)
+    ) +
+    annotate(
+      "text",
+      x = x + 0.05,
+      y = y,
+      label = "Last observed eigenvalue above simulated data",
+      hjust = 0,
+      vjust = -0.5,
+      family = "serif"
+    ) +
+    annotate("point",
+             x = x,
+             y = y,
+             size = 2) +
+    ggtitle(paste0("Parallel analysis suggests ", x, " factor",ifelse(x == 1, "","s"),"."))
+}
+
+#' Convert x to a z-score
+#'
+#' @param x a numeric vector
+#' @param mu mean
+#' @param sigma standard deviation
+#' @export
+#'
+x2z <- function(x, mu = mean(x, na.rm = T), sigma = stats::sd(x, na.rm = T)) {
+  (x - mu) / sigma
+}
+
+#' Converts the default values of a function's arguments to variables and attaches them to the global environment
+#'
+#' @export
+#' @param f Function
+#' @return Attaches function arguments to global environment
+#' @export
+#'
+#' @examples
+#' my_function <- function(x, y = 2) x + y
+#'
+#' # Sets y to 2
+#' attach_function(my_function)
+attach_function <- function(f) {
+  attach(rlist::list.clean(as.list(formals(f)),is.name))
+}
+
+
+#' Remove leading zero from numbers
+#'
+#' @param x vector of  numbers
+#'
+#' @return vector of characters
+#' @export
+#'
+#' @examples
+#' remove_leading_zero(c(0.5,-0.2))
+remove_leading_zero <- function(x) {
+  sub("^-0+","-", sub("^0+","",x))
+}
+
+#' Convert data.frame and tibbles to matices with named rows and columns
+#'
+#' @param d data.frame or tibble
+#' @param first_col_is_row_names TRUE if first column has row names
+#'
+#' @return matrix
+#' @export
+#'
+#' @examples
+#'
+#' d <- data.frame(rname = c("x1", "x2"), x1 = c(1,2), x2 = c(3,4))
+#' df2matrix(d)
+df2matrix <- function(d, first_col_is_row_names = TRUE) {
+  d <- as.data.frame(d)
+  if (first_col_is_row_names) {
+    rownames(d) <- dplyr::pull(d, 1)
+    d <- d[,-1, drop = F]
+  }
+  as.matrix(d, rownames.force = T)
+}
+
+#' Create clustered data structures
+#'
+#' @param data a vector of level-2 sample sizes or a data.frame with level-2 data which includes dsample sizes in one of its columns
+#' @param .cluster_id name of cluster id variable in level-2 data
+#' @param .cluster_size name of cluster size variable in level-2 data
+#' @param .id name of new level-1 id variable
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' # Number of clusters
+#' k <- 20
+#' # Level-2 data with cluster id, cluster size, and a level-2 covariate
+#' d_l2 <- data.frame(
+#'   classroom_id = 1:k,
+#'   classroom_size = rpois(k, lambda = 30),
+#'   Xj = rnorm(k))
+#'
+#' # Make level-1 data frame
+#' d_l1 <- make_clusters(
+#'   data = d_l2,
+#'   .cluster_id = "classroom_id",
+#'   .cluster_size = "classroom_size",
+#'   .id = "student_id")
+#' d_l1
+make_clusters <- function(
+  data,
+  .cluster_id = "cluster_id",
+  .cluster_size = "cluster_size",
+  .id = "id") {
+
+if (is.numeric(data)) data <- tibble::tibble(!!rlang::ensym(.cluster_id) := 1:length(data), !!rlang::ensym(.cluster_size) := data)
+
+d <- dplyr::mutate(
+    data,
+    .clusters = purrr::map2(
+      !!rlang::ensym(.cluster_id),
+      !!rlang::ensym(.cluster_size),
+      rep))
+d <- tidyr::unnest(d, .clusters)
+d <- dplyr::mutate(d, !!.id := 1:nrow(d))
+dplyr::select(d, -.clusters)
+
+}
 
