@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Random beta distribution with specified mean and sd — rbeta_ms • WJSmisc</title>
+<title>Convert data.frame and tibbles to matices with named rows and columns — df2matrix • WJSmisc</title>
 
 
 <!-- jquery -->
@@ -35,8 +35,8 @@
 
 
 
-<meta property="og:title" content="Random beta distribution with specified mean and sd — rbeta_ms" />
-<meta property="og:description" content="Random beta distribution with specified mean and sd" />
+<meta property="og:title" content="Convert data.frame and tibbles to matices with named rows and columns — df2matrix" />
+<meta property="og:description" content="Convert data.frame and tibbles to matices with named rows and columns" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -105,40 +105,40 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Random beta distribution with specified mean and sd</h1>
+    <h1>Convert data.frame and tibbles to matices with named rows and columns</h1>
     <small class="dont-index">Source: <a href='https://github.com/wjschne/WJSmisc/blob/master/R/main.R'><code>R/main.R</code></a></small>
-    <div class="hidden name"><code>rbeta_ms.Rd</code></div>
+    <div class="hidden name"><code>df2matrix.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Random beta distribution with specified mean and sd</p>
+    <p>Convert data.frame and tibbles to matices with named rows and columns</p>
     </div>
 
-    <pre class="usage"><span class='fu'>rbeta_ms</span>(<span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>mu</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>sigma</span> <span class='kw'>=</span> <span class='fl'>0.025</span>)</pre>
+    <pre class="usage"><span class='fu'>df2matrix</span>(<span class='no'>d</span>, <span class='kw'>first_col_is_row_names</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>n</th>
-      <td><p>Number of data points</p></td>
+      <th>d</th>
+      <td><p>data.frame or tibble</p></td>
     </tr>
     <tr>
-      <th>mu</th>
-      <td><p>Mean of random beta distribution</p></td>
-    </tr>
-    <tr>
-      <th>sigma</th>
-      <td><p>SD of random beta distribution</p></td>
+      <th>first_col_is_row_names</th>
+      <td><p>TRUE if first column has row names</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a vector of numeric values</p>
+    <p>matrix</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>rbeta_ms</span>(<span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>mu</span> <span class='kw'>=</span> <span class='fl'>0.8</span>, <span class='kw'>sigma</span> <span class='kw'>=</span> <span class='fl'>0.1</span>)</div><div class='output co'>#&gt; [1] 0.8541404 0.8521914 0.9292633 0.6650650 0.6380880</div></pre>
+    <pre class="examples"><div class='input'>
+<span class='no'>d</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(<span class='kw'>rname</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"x1"</span>, <span class='st'>"x2"</span>), <span class='kw'>x1</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>,<span class='fl'>2</span>), <span class='kw'>x2</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>3</span>,<span class='fl'>4</span>))
+<span class='fu'>df2matrix</span>(<span class='no'>d</span>)</div><div class='output co'>#&gt;    x1 x2
+#&gt; x1  1  3
+#&gt; x2  2  4</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

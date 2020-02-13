@@ -69,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">WJSmisc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3</span>
       </span>
     </div>
 
@@ -114,9 +114,19 @@
     <p>Title</p>
     </div>
 
-    <pre class="usage"><span class='fu'>cor_heat</span>(<span class='no'>d</span>, <span class='kw'>test_names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>d</span>), <span class='kw'>margins</span> <span class='kw'>=</span> <span class='fl'>0.55</span>, <span class='kw'>text_size</span> <span class='kw'>=</span> <span class='fl'>4</span>,
-  <span class='kw'>dendrograms</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>palette_col</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"firebrick"</span>, <span class='st'>"white"</span>,
-  <span class='st'>"royalblue"</span>), <span class='kw'>x_label_angle</span> <span class='kw'>=</span> <span class='fl'>90</span>, <span class='kw'>reorder_vars</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>cor_heat</span>(
+  <span class='no'>d</span>,
+  <span class='kw'>test_names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>d</span>),
+  <span class='kw'>margins</span> <span class='kw'>=</span> <span class='fl'>0.55</span>,
+  <span class='kw'>text_size</span> <span class='kw'>=</span> <span class='fl'>4</span>,
+  <span class='kw'>dendrograms</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>palette_col</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"firebrick"</span>, <span class='st'>"white"</span>, <span class='st'>"royalblue"</span>),
+  <span class='kw'>x_label_angle</span> <span class='kw'>=</span> <span class='fl'>90</span>,
+  <span class='kw'>reorder_vars</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>heat.lim</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(-<span class='fl'>1</span>, <span class='fl'>1</span>),
+  <span class='kw'>heat.pal.values</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='fl'>0</span>, <span class='fl'>1</span>, <span class='fl'>1</span>/(<span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='no'>palette_col</span>) - <span class='fl'>1</span>)),
+  <span class='no'>...</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -152,6 +162,14 @@
     <tr>
       <th>reorder_vars</th>
       <td><p>If TRUE, reorder variables based on cluster analysis</p></td>
+    </tr>
+    <tr>
+      <th>heat.lim</th>
+      <td><p>Vector of the lower and upper bounds on heat map</p></td>
+    </tr>
+    <tr>
+      <th>heat.pal.values</th>
+      <td><p>Vector of values of where on the scale each color in palette_col falls. Defaults to even spacing.</p></td>
     </tr>
     <tr>
       <th>...</th>
