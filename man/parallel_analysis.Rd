@@ -15,9 +15,6 @@ parallel_analysis(d, fm = "pa", vcolors = c("firebrick", "royalblue"), ...)
 
 \item{...}{parameters passed to psych::fa.parallel}
 }
-\value{
-
-}
 \description{
 ggplot of parallel analysis from the psych package
 }

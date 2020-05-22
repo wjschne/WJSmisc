@@ -16,3 +16,10 @@ test_that("equal mu if sigma = 0", {
 test_that("between 0 and 1", {
   expect_true(all(dplyr::between(rbeta_ms(100, mu = 0.6, sigma = 0.2),0,1)))
 })
+
+
+test_that("remove leading zero", {
+  expect_equal(remove_leading_zero(0.5, digits = 2), ".50")
+  expect_equal(remove_leading_zero(-0.5, digits = 2), "-.50")
+  expect_equal(remove_leading_zero(1.5, digits = 2), "1.50")
+})

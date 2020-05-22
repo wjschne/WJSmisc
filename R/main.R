@@ -357,12 +357,12 @@ proportion_round <- function(p, digits = 2) {
 
 #' Rounds proportions to significant digits both near 0 and 1, then converts to percentiles
 #'
-#' @param p probabiity
+#' @param p probability
 #' @param digits rounding digits
 #' @param remove_leading_zero If TRUE, remove leading zero
 #' @param add_percent_character If TRUE, add percent character
 #'
-#' @return chracter vector
+#' @return character vector
 #' @export
 #'
 #' @examples
@@ -454,7 +454,6 @@ make_indicators <- function(latent, indicators = NULL, mu = 0.8, sigma = 0.05, k
 #' @param ... parameters passed to psych::fa.parallel
 #' @importFrom rlang .data
 #' @import ggplot2
-#' @return
 #' @export
 #'
 #' @examples
@@ -531,17 +530,21 @@ attach_function <- function(f) {
 #' Remove leading zero from numbers
 #'
 #' @param x vector of  numbers
+#' @param digits rounding digits
 #'
 #' @return vector of characters
 #' @export
 #'
 #' @examples
 #' remove_leading_zero(c(0.5,-0.2))
-remove_leading_zero <- function(x) {
+remove_leading_zero <- function(x, digits = NA) {
+  if (!is.na(digits)) {
+    x <- formatC(x , digits = digits, format = "f")
+  }
   sub("^-0+","-", sub("^0+","",x))
 }
 
-#' Convert data.frame and tibbles to matices with named rows and columns
+#' Convert data.frame and tibbles to matrices with named rows and columns
 #'
 #' @param d data.frame or tibble
 #' @param first_col_is_row_names TRUE if first column has row names
@@ -562,49 +565,7 @@ df2matrix <- function(d, first_col_is_row_names = TRUE) {
   as.matrix(d, rownames.force = T)
 }
 
-#' Create clustered data structures
-#'
-#' @param data a vector of level-2 sample sizes or a data.frame with level-2 data which includes dsample sizes in one of its columns
-#' @param .cluster_id name of cluster id variable in level-2 data
-#' @param .cluster_size name of cluster size variable in level-2 data
-#' @param .id name of new level-1 id variable
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#' # Number of clusters
-#' k <- 20
-#' # Level-2 data with cluster id, cluster size, and a level-2 covariate
-#' d_l2 <- data.frame(
-#'   classroom_id = 1:k,
-#'   classroom_size = rpois(k, lambda = 30),
-#'   Xj = rnorm(k))
-#'
-#' # Make level-1 data frame
-#' d_l1 <- make_clusters(
-#'   data = d_l2,
-#'   .cluster_id = "classroom_id",
-#'   .cluster_size = "classroom_size",
-#'   .id = "student_id")
-#' d_l1
-make_clusters <- function(
-  data,
-  .cluster_id = "cluster_id",
-  .cluster_size = "cluster_size",
-  .id = "id") {
 
-if (is.numeric(data)) data <- tibble::tibble(!!rlang::ensym(.cluster_id) := 1:length(data), !!rlang::ensym(.cluster_size) := data)
 
-d <- dplyr::mutate(
-    data,
-    .clusters = purrr::map2(
-      !!rlang::ensym(.cluster_id),
-      !!rlang::ensym(.cluster_size),
-      rep))
-d <- tidyr::unnest(d, .clusters)
-d <- dplyr::mutate(d, !!.id := 1:nrow(d))
-dplyr::select(d, -.clusters)
 
-}
 

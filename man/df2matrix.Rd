@@ -2,7 +2,7 @@
 % Please edit documentation in R/main.R
 \name{df2matrix}
 \alias{df2matrix}
-\title{Convert data.frame and tibbles to matices with named rows and columns}
+\title{Convert data.frame and tibbles to matrices with named rows and columns}
 \usage{
 df2matrix(d, first_col_is_row_names = TRUE)
 }
@@ -15,7 +15,7 @@ df2matrix(d, first_col_is_row_names = TRUE)
 matrix
 }
 \description{
-Convert data.frame and tibbles to matices with named rows and columns
+Convert data.frame and tibbles to matrices with named rows and columns
 }
 \examples{
 

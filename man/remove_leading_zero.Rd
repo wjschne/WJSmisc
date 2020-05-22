@@ -4,10 +4,12 @@
 \alias{remove_leading_zero}
 \title{Remove leading zero from numbers}
 \usage{
-remove_leading_zero(x)
+remove_leading_zero(x, digits = NA)
 }
 \arguments{
 \item{x}{vector of  numbers}
+
+\item{digits}{rounding digits}
 }
 \value{
 vector of characters

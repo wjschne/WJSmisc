@@ -12,7 +12,7 @@ proportion2percentile(
 )
 }
 \arguments{
-\item{p}{probabiity}
+\item{p}{probability}
 
 \item{digits}{rounding digits}
 
@@ -21,7 +21,7 @@ proportion2percentile(
 \item{add_percent_character}{If TRUE, add percent character}
 }
 \value{
-chracter vector
+character vector
 }
 \description{
 Rounds proportions to significant digits both near 0 and 1, then converts to percentiles
