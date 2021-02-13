@@ -13,13 +13,15 @@ pdf2svg <- function(s) {shell(paste0("pdf2svg ",s,".pdf ",s,".svg"))}
 #' @param w Weight matrix. Must have the same number of rows as R
 #' @param correlation If TRUE, return correlations instead of covariances
 #' @examples
-#' Sigma <- matrix(0.6, nrow = 4, ncol = 4)
+#' # Create covariance matrix
+#' Sigma <- matrix(0.6, nrow = 5, ncol = 5)
 #' diag(Sigma) <- 1
-#' w <- matrix(c(1,0,
-#'               1,0,
-#'               0,1,
-#'               0,1),
-#'               nrow = 4, ncol = 2)
+#' # Create weight matrix
+#' w <- matrix(0, nrow = 5, ncol = 2)
+#' w[1:2,1] <- 1
+#' w[3:5,2] <- 1
+#' w
+#' # covariance matrix of weighted sums
 #' composite_covariance(Sigma, w)
 composite_covariance <- function(Sigma,w, correlation = FALSE) {
   Sigma_composite <- t(w) %*% Sigma %*% w
@@ -537,11 +539,9 @@ attach_function <- function(f) {
 #'
 #' @examples
 #' remove_leading_zero(c(0.5,-0.2))
-remove_leading_zero <- function(x, digits = NA) {
-  if (!is.na(digits)) {
-    x <- formatC(x , digits = digits, format = "f")
-  }
-  sub("^-0+","-", sub("^0+","",x))
+remove_leading_zero <- function(x, digits = 2, ...) {
+  x <- formatC(x, digits, format = "f", ...)
+  sub("^-0","-", sub("^0","",x))
 }
 
 #' Convert data.frame and tibbles to matrices with named rows and columns

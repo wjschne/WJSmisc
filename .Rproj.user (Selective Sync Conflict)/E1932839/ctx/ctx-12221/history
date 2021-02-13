@@ -1,0 +1,512 @@
+"text",
+x,
+0.05 * dnorm(mu, mu, sigma),
+label = paste("P(x<", dx, ")==", round(pnorm(x, mu, sigma), 2)),
+parse = TRUE,
+hjust = 1.05,
+family = "serif",
+size = text_size * 5 / 14
+) +
+annotate(
+"text",
+x,
+0.05 * dnorm(mu, mu, sigma),
+label = paste("P(x>", dx, ")==", round(1 - pnorm(x, mu, sigma), 2)),
+parse = TRUE,
+hjust = -0.05,
+family = "serif",
+size = text_size * 5 / 14
+)
+}
+if (show_x) {
+p <- p +
+annotate(
+geom = "text",
+x = x,
+y = 0,
+label = paste("x == ",dx),
+vjust = 1.1,
+parse = TRUE,
+family = "serif",
+size = text_size * 5 / 14)
+}
+if (show_param) {
+p <- p +
+annotate(
+geom = "text",
+x = mu,
+y = dnorm(mu,mu,sigma),
+label = paste("mu==",mu),
+vjust = -.1,
+parse = TRUE,
+family = "serif",
+size = text_size * 5 / 14) +
+annotate(
+geom = "text",
+x = mu + sigma / 2,
+y = dnorm(mu + sigma, mu, sigma),
+label = paste("sigma==", sigma),
+vjust = -.3,
+parse = TRUE,
+family = "serif",
+size = text_size * 5 / 14) +
+annotate(
+geom = "segment",
+x = mu,
+y = dnorm(mu + sigma, mu, sigma),
+xend = mu + sigma,
+yend = dnorm(mu + sigma, mu, sigma),
+arrow = arrow(length = unit(0.015, "npc")))
+}
+p
+}
+plotnorm(95,100,15)
+plotnorm(qnorm(.25, 100, 15), 100, 15, text_size = 20, answer = F, show_x = F) + scale_y_continuous(expand = c(.12,0))
+plotnorm(qnorm(.25, 100, 15), 100, 15, text_size = 20, answer = F, show_x = F, show_param = F) + scale_y_continuous(expand = c(.12,0))
+plotnorm(95,100,15)
+#' @param x number to divide normal distribution
+#' @param mu mean of normal distribution
+#' @param sigma standard deviation of normal distribution
+#' @param below If TRUE, shade lower portion of normal distribiton
+#' @param show_proportion If TRUE, display proportions
+#' @param show_x If TRUE, display x value
+#' @param show_param If TRUE, display mean and standard deviation
+#' @param text_size Base text size
+#' @example
+#' plotnorm(90, 100, 15)
+plotnorm <- function(x,mu,sigma, below = TRUE, show_proportion = TRUE, show_x = TRUE, show_param = TRUE, text_size = 14) {
+require(ggplot2)
+require(truncnorm)
+dx <- round(x,2)
+p <- ggplot(data.frame(x = c(mu - 4 * sigma, mu + 4 * sigma)), aes(x)) +
+stat_function(fun = dnorm,
+args = list(mean = mu,sd = sigma),
+geom = "area",
+col = NA,
+fill = "gray",
+n = 1001) +
+stat_function(fun = dnorm,
+args = list(mean = mu,sd = sigma),
+xlim = c(ifelse(below,mu - 4 * sigma,x),
+ifelse(below,x,mu + 4 * sigma)),
+geom = "area",
+fill = "royalblue",
+col = NA,
+n = 1001) +
+theme_classic(base_family = "serif", base_size = text_size) +
+theme(axis.title.y = element_blank(),
+axis.text.y = element_blank(),
+axis.ticks.y = element_blank(),
+axis.line.y = element_blank()) +
+labs(x = NULL, y = NULL) +
+scale_x_continuous(breaks = seq(-4, 4) * sigma + mu)
+if (show_proportion) {
+p <-  p +
+annotate(
+"text",
+x,
+0.05 * dnorm(mu, mu, sigma),
+label = paste("P(x<", dx, ")==", round(pnorm(x, mu, sigma), 2)),
+parse = TRUE,
+hjust = 1.05,
+family = "serif",
+size = text_size * 5 / 14
+) +
+annotate(
+"text",
+x,
+0.05 * dnorm(mu, mu, sigma),
+label = paste("P(x>", dx, ")==", round(1 - pnorm(x, mu, sigma), 2)),
+parse = TRUE,
+hjust = -0.05,
+family = "serif",
+size = text_size * 5 / 14
+)
+}
+if (show_x) {
+p <- p +
+annotate(
+geom = "text",
+x = x,
+y = 0,
+label = paste("x == ",dx),
+vjust = 1.1,
+parse = TRUE,
+family = "serif",
+size = text_size * 5 / 14)
+}
+if (show_param) {
+p <- p +
+annotate(
+geom = "text",
+x = mu,
+y = dnorm(mu,mu,sigma),
+label = paste("mu==",mu),
+vjust = -.1,
+parse = TRUE,
+family = "serif",
+size = text_size * 5 / 14) +
+annotate(
+geom = "text",
+x = mu + sigma / 2,
+y = dnorm(mu + sigma, mu, sigma),
+label = paste("sigma==", sigma),
+vjust = -.3,
+parse = TRUE,
+family = "serif",
+size = text_size * 5 / 14) +
+annotate(
+geom = "segment",
+x = mu,
+y = dnorm(mu + sigma, mu, sigma),
+xend = mu + sigma,
+yend = dnorm(mu + sigma, mu, sigma),
+arrow = arrow(length = unit(0.015, "npc")))
+}
+p
+}
+library(WJSmisc)
+plotnorm(110, 100, 15)
+plotnorm(110, 100, 15, F)
+#' @param mu mean of normal distribution
+#' @param sigma standard deviation of normal distribution
+#' @param below If TRUE, shade lower portion of normal distribiton
+#' @param show_proportion If TRUE, display proportions
+#' @param show_x If TRUE, display x value
+#' @param show_param If TRUE, display mean and standard deviation
+#' @param text_size Base text size
+#' @param shade_fill Color of shaded region
+#' @example
+#' plotnorm(90, 100, 15)
+plotnorm <- function(x,mu,sigma, below = TRUE, show_proportion = TRUE, show_x = TRUE, show_param = TRUE, text_size = 14, shade_fill = "royalblue") {
+require(ggplot2)
+require(truncnorm)
+dx <- round(x,2)
+p <- ggplot(data.frame(x = c(mu - 4 * sigma, mu + 4 * sigma)), aes(x)) +
+stat_function(fun = dnorm,
+args = list(mean = mu,sd = sigma),
+geom = "area",
+col = NA,
+fill = "gray",
+n = 1001) +
+stat_function(fun = dnorm,
+args = list(mean = mu,sd = sigma),
+xlim = c(ifelse(below,mu - 4 * sigma,x),
+ifelse(below,x,mu + 4 * sigma)),
+geom = "area",
+fill = shade_fill,
+col = NA,
+n = 1001) +
+theme_classic(base_family = "serif", base_size = text_size) +
+theme(axis.title.y = element_blank(),
+axis.text.y = element_blank(),
+axis.ticks.y = element_blank(),
+axis.line.y = element_blank()) +
+labs(x = NULL, y = NULL) +
+scale_x_continuous(breaks = seq(-4, 4) * sigma + mu)
+if (show_proportion) {
+p <-  p +
+annotate(
+"text",
+x,
+0.05 * dnorm(mu, mu, sigma),
+label = paste("P(x<", dx, ")==", round(pnorm(x, mu, sigma), 2)),
+parse = TRUE,
+hjust = 1.05,
+family = "serif",
+size = text_size * 5 / 14
+) +
+annotate(
+"text",
+x,
+0.05 * dnorm(mu, mu, sigma),
+label = paste("P(x>", dx, ")==", round(1 - pnorm(x, mu, sigma), 2)),
+parse = TRUE,
+hjust = -0.05,
+family = "serif",
+size = text_size * 5 / 14
+)
+}
+if (show_x) {
+p <- p +
+annotate(
+geom = "text",
+x = x,
+y = 0,
+label = paste("x == ",dx),
+vjust = 1.1,
+parse = TRUE,
+family = "serif",
+size = text_size * 5 / 14)
+}
+if (show_param) {
+p <- p +
+annotate(
+geom = "text",
+x = mu,
+y = dnorm(mu,mu,sigma),
+label = paste("mu==",mu),
+vjust = -.1,
+parse = TRUE,
+family = "serif",
+size = text_size * 5 / 14) +
+annotate(
+geom = "text",
+x = mu + sigma / 2,
+y = dnorm(mu + sigma, mu, sigma),
+label = paste("sigma==", sigma),
+vjust = -.3,
+parse = TRUE,
+family = "serif",
+size = text_size * 5 / 14) +
+annotate(
+geom = "segment",
+x = mu,
+y = dnorm(mu + sigma, mu, sigma),
+xend = mu + sigma,
+yend = dnorm(mu + sigma, mu, sigma),
+arrow = arrow(length = unit(0.015, "npc")))
+}
+p
+}
+plotnorm(110, 100, 15, F)
+plotnorm(110, 100, 15, show_proportion = F)
+usethis::use_package("truncnorm")
+use_devtools()
+use_description()
+usethis::use_package("ggplot2")
+usethis::use_package("truncnorm")
+library(WJSmisc)
+library(WJSmisc)
+#' @param indicators vector of indicator names (assigned automatically if left NULL)
+#' @param mu mean of standardized coefficients
+#' @param sigma sd of standardized coeficients
+#' @param k number of indicator variables
+#'
+#' @return lavaan code for latent variable assignment
+#' @export
+#'
+#' @examples
+#' make_indicators("depression", mu = 0.8, sd = 0.03, k = 4)
+make_indicators <- function(latent, indicators = NULL, mu = .8, sigma = 0.02, k = 3) {
+if (is.null(indicators)) indicators <- paste0(latent,"_",1:k)
+if (length(mu) == 1) mu <- rep(mu, length(indicators))
+if (length(sigma) == 1) sigma <- rep(sigma, length(indicators))
+loadings <- pmap_dbl(list(mu = mu,sigma = sigma), rbeta_ms)
+ll <- paste0(loadings," * ", indicators, collapse = " + ")
+paste0(latent, " =~ ", ll)
+}
+make_indicators("depression", mu = 0.8, sd = 0.03, k = 4)
+make_indicators("depression", mu = 0.8, sigma = 0.03, k = 4)
+#' @param indicators vector of indicator names (assigned automatically if left NULL)
+#' @param mu mean of standardized coefficients
+#' @param sigma sd of standardized coeficients
+#' @param k number of indicator variables
+#'
+#' @return lavaan code for latent variable assignment
+#' @export
+#'
+#' @examples
+#' make_indicators("depression", mu = 0.8, sigma = 0.03, k = 4)
+make_indicators <- function(latent, indicators = NULL, mu = .8, sigma = 0.02, k = 3) {
+if (is.null(indicators)) indicators <- paste0(latent,"_",1:k)
+if (length(mu) == 1) mu <- rep(mu, length(indicators))
+if (length(sigma) == 1) sigma <- rep(sigma, length(indicators))
+loadings <- purrr::pmap_dbl(list(mu = mu,sigma = sigma), rbeta_ms)
+ll <- paste0(loadings," * ", indicators, collapse = " + ")
+paste0(latent, " =~ ", ll)
+}
+make_indicators("depression", mu = 0.8, sigma = 0.03, k = 4)
+#'
+#' @param n Number of data points
+#' @param mu Mean of random beta distribution
+#' @param sigma SD of random beta distribution
+#'
+#' @return a vector of numeric values
+#' @export
+#'
+#' @examples
+#' rbeta_ms(n = 5, mu = 0.8, sigma = 0.1)
+rbeta_ms <- function(n = 1,
+mu = 0.5,
+sigma = 0.025) {
+if (sigma == 0)
+return(rep(mu, n))
+# Check to make sure mu is between 0 and 1
+if (mu >= 1 | mu <= 0)
+stop("mu must be between 0 and 1.")
+# variance
+v <- sigma ^ 2
+# Check to make sure the variance is not impossibly large
+if (v > mu * (1 - mu))
+stop("sigma is too large. sigma cannot be larger than mu * (1 - m).")
+# Hits
+a <- mu * ((mu * (1 - mu) / v) - 1)
+# Misses
+b <- (1 - mu) * a / mu
+# Random data
+stats::rbeta(n, a, b)
+}
+make_indicators("depression", mu = 0.8, sigma = 0.03, k = 4)
+#' @param mu mean of standardized coefficients
+#' @param sigma sd of standardized coeficients
+#' @param k number of indicator variables
+#' @param digits number of digits to round coefficients
+#'
+#' @return lavaan code for latent variable assignment
+#' @export
+#'
+#' @examples
+#' make_indicators("depression", mu = 0.8, sigma = 0.03, k = 4)
+make_indicators <- function(latent, indicators = NULL, mu = .8, sigma = 0.02, k = 3, digits = 3) {
+if (is.null(indicators)) indicators <- paste0(latent,"_",1:k)
+if (length(mu) == 1) mu <- rep(mu, length(indicators))
+if (length(sigma) == 1) sigma <- rep(sigma, length(indicators))
+loadings <- round(purrr::pmap_dbl(list(mu = mu,sigma = sigma), rbeta_ms), digits = digits)
+ll <- paste0(loadings," * ", indicators, collapse = " + ")
+paste0(latent, " =~ ", ll)
+}
+make_indicators("depression", mu = 0.8, sigma = 0.03, k = 4)
+library(WJSmisc)
+library(WJSmisc)
+library(WJSmisc)
+psych::bfi %>% parallel_analysis()
+bfi %>% class
+psych::bfi %>% class
+psych::bfi
+library(WJSmisc)
+d <- psych::bfi[,1:25]
+#' parallel_analysis(d)
+parallel_analysis(d)
+d <- psych::bfi[,1:25]
+#' parallel_analysis(d)
+parallel_analysis(d)
+d <- psych::bfi[,1:25]
+parallel_analysis(d)
+invisible(utils::capture.output( pa <- psych::fa.parallel(d, fm = fm, plot = F)))
+fm = "pa"
+invisible(utils::capture.output( pa <- psych::fa.parallel(d, fm = fm, plot = F)))
+x <- pa$nfact
+y <- pa$fa.values[pa$nfact]
+tibble::tibble(
+`Observed Data` = pa$fa.values,
+`Simulated Data` = pa$fa.sim,
+Factors = seq_along(pa$fa.values)
+) %>%
+tidyr::gather(.data$Type, .data$Eigenvalues,-.data$Factors) %>%
+ggplot(aes(.data$Factors,
+.data$Eigenvalues,
+color = .data$Type)) +
+geom_line() +
+geom_point() +
+theme_minimal(base_family = "serif") +
+scale_color_manual(values = c("firebrick", "royalblue")) +
+scale_x_continuous(minor_breaks = NULL, breaks = seq_along(pa$fa.values)) +
+theme(
+legend.position = c(1, 1),
+legend.justification = c(1, 1),
+legend.background = element_rect(fill = "white", color = NA)
+) +
+annotate(
+"text",
+x = x + 0.05,
+y = y,
+label = "Last observed eigenvalue above simulated data",
+hjust = 0,
+vjust = -0.5
+) +
+annotate("point",
+x = x,
+y = y,
+size = 2) +
+ggtitle(paste0("Parallel analysis suggests ", x, " factor",ifelse(x == 1, "","s"),"."))
+tibble::tibble(
+`Observed Data` = pa$fa.values,
+`Simulated Data` = pa$fa.sim,
+Factors = seq_along(pa$fa.values)
+) %>%
+tidyr::gather(.data$Type, .data$Eigenvalues,-.data$Factors)
+tibble::tibble(
+`Observed Data` = pa$fa.values,
+`Simulated Data` = pa$fa.sim,
+Factors = seq_along(pa$fa.values)
+)
+tibble::tibble(
+`Observed Data` = pa$fa.values,
+`Simulated Data` = pa$fa.sim,
+Factors = seq_along(pa$fa.values)
+) %>%
+tidyr::gather("Type", "Eigenvalues",-.data$Factors) %>%
+ggplot(aes(.data$Factors,
+.data$Eigenvalues,
+color = .data$Type)) +
+geom_line() +
+geom_point() +
+theme_minimal(base_family = "serif") +
+scale_color_manual(values = c("firebrick", "royalblue")) +
+scale_x_continuous(minor_breaks = NULL, breaks = seq_along(pa$fa.values)) +
+theme(
+legend.position = c(1, 1),
+legend.justification = c(1, 1),
+legend.background = element_rect(fill = "white", color = NA)
+) +
+annotate(
+"text",
+x = x + 0.05,
+y = y,
+label = "Last observed eigenvalue above simulated data",
+hjust = 0,
+vjust = -0.5
+) +
+annotate("point",
+x = x,
+y = y,
+size = 2) +
+ggtitle(paste0("Parallel analysis suggests ", x, " factor",ifelse(x == 1, "","s"),"."))
+library(WJSmisc)
+d <- psych::bfi[,1:25]
+parallel_analysis(d)
+library(WJSmisc)
+d <- psych::bfi[,1:25]
+parallel_analysis(d)
+library(WJSmisc)
+d <- psych::bfi[,1:25]
+parallel_analysis(d)
+d <- psych::bfi[,1:25]
+library(WJSmisc)
+parallel_analysis(d)
+library(WJSmisc)
+library(WJSmisc)
+library(WJSmisc)
+library(WJSmisc)
+install.packages("rlist")
+usethis::use_package(rlist)
+usethis::use_package("rlist")
+library(WJSmisc)
+install.packages(c("bit", "checkmate", "corrr", "dendextend", "effsize", "foreach", "Hmisc", "knitr", "processx", "RcppArmadillo", "rstudioapi", "searcher", "styler", "svglite"))
+install.packages("learnr")
+install.packages("rlist")
+library(WJSmisc)
+library(WJSmisc)
+library(WJSmisc)
+WJSmisc::remove_leading_zero(0.5)
+WJSmisc::remove_leading_zero(0.50)
+library(WJSmisc)
+library(testthat)
+library(WJSmisc)
+test_check("WJSmisc")
+test_that("remove leading zero", {
+expect_value(remove_leading_zero(0.5, digits = 2), ".50")
+})
+expect_equal(remove_leading_zero(0.5, digits = 2), ".50")
+test_that("remove leading zero", {
+expect_equal(remove_leading_zero(0.5, digits = 2), ".50")
+})
+library(WJSmisc)
+expect_equal(remove_leading_zero(1.5, digits = 2), "1.50")
+remove_leading_zero(c(-0.4))
+expect_equal(remove_leading_zero(-0.5, digits = 2), "-.50")
+library(WJSmisc)
+library(WJSmisc)
+library(WJSmisc)
+build_site()

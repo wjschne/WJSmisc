@@ -22,4 +22,5 @@ test_that("remove leading zero", {
   expect_equal(remove_leading_zero(0.5, digits = 2), ".50")
   expect_equal(remove_leading_zero(-0.5, digits = 2), "-.50")
   expect_equal(remove_leading_zero(1.5, digits = 2), "1.50")
+  expect_equal(remove_leading_zero(0, digits = 2), ".00")
 })

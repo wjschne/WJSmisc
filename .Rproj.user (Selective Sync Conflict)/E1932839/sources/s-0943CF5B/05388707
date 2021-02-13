@@ -1,0 +1,24 @@
+{
+    "id": "05388707",
+    "path": "C:/Users/renee/Dropbox/packages/WJSmisc/tests/testthat/test-main.R",
+    "project_path": "tests/testthat/test-main.R",
+    "type": "r_source",
+    "hash": "3092868677",
+    "contents": "",
+    "dirty": false,
+    "created": 1590160637371.0,
+    "source_on_save": false,
+    "relative_order": 3,
+    "properties": {
+        "cursorPosition": "23,2",
+        "scrollLine": "4"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1590160886,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1590160886560,
+    "read_only": false,
+    "read_only_alternatives": []
+}
