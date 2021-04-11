@@ -4,12 +4,24 @@
 \alias{plot_loading}
 \title{Creats a plot of factor loadings}
 \usage{
-plot_loading(f, factor_names = sort(colnames(f$loadings)))
+plot_loading(
+  f,
+  font_family = "serif",
+  font_size = 14,
+  factor_names = sort(colnames(f$loadings)),
+  nudge_loadings = 0.05
+)
 }
 \arguments{
 \item{f}{output of a factor analysis from the psych::fa function}
 
-\item{factor_names}{names of the factors #' @import patchwork}
+\item{font_family}{Name of font}
+
+\item{font_size}{Size of font}
+
+\item{factor_names}{names of the factors #'}
+
+\item{nudge_loadings}{nudge loadings on x dimension}
 }
 \description{
 Creats a plot of factor loadings

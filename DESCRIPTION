@@ -1,5 +1,6 @@
 Package: WJSmisc
 Title: Miscellaneous functions from W. Joel Schneider
+Date: 2021-03-10
 Version: 0.3
 Authors@R: 
     person(given = "W. Joel",
@@ -28,9 +29,10 @@ Imports:
     GPArotation,
     utils,
     purrr,
-    rlist
+    rlist,
+    scales
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Suggests: 
     testthat (>= 2.1.0)

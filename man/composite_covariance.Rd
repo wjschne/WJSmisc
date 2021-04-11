@@ -17,12 +17,14 @@ composite_covariance(Sigma, w, correlation = FALSE)
 Computes covariances of composite scores given a covariance matrix and a weight matrix
 }
 \examples{
-Sigma <- matrix(0.6, nrow = 4, ncol = 4)
+# Create covariance matrix
+Sigma <- matrix(0.6, nrow = 5, ncol = 5)
 diag(Sigma) <- 1
-w <- matrix(c(1,0,
-              1,0,
-              0,1,
-              0,1),
-              nrow = 4, ncol = 2)
+# Create weight matrix
+w <- matrix(0, nrow = 5, ncol = 2)
+w[1:2,1] <- 1
+w[3:5,2] <- 1
+w
+# covariance matrix of weighted sums
 composite_covariance(Sigma, w)
 }

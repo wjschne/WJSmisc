@@ -13,6 +13,7 @@ plotnorm(
   show_x = TRUE,
   show_param = TRUE,
   text_size = 14,
+  font_family = "serif",
   shade_fill = "royalblue"
 )
 }
@@ -32,6 +33,8 @@ plotnorm(
 \item{show_param}{If TRUE, display mean and standard deviation}
 
 \item{text_size}{Base text size}
+
+\item{font_family}{Name of font}
 
 \item{shade_fill}{Color of shaded region}
 }

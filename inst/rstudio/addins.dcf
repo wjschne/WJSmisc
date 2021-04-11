@@ -1,0 +1,4 @@
+Name: Paste matrix from clipboard
+Description: At the cursor position, pastes code to make a matrix.
+Binding: paste_matrix_from_clipboard
+Interactive: false

@@ -39,11 +39,21 @@ composite_covariance <- function(Sigma,w, correlation = FALSE) {
 #' @param show_x If TRUE, display x value
 #' @param show_param If TRUE, display mean and standard deviation
 #' @param text_size Base text size
+#' @param font_family Name of font
 #' @param shade_fill Color of shaded region
 #' @import ggplot2
 #' @examples
 #' plotnorm(90, 100, 15)
-plotnorm <- function(x,mu,sigma, below = TRUE, show_proportion = TRUE, show_x = TRUE, show_param = TRUE, text_size = 14, shade_fill = "royalblue") {
+plotnorm <- function(x,
+                     mu,
+                     sigma,
+                     below = TRUE,
+                     show_proportion = TRUE,
+                     show_x = TRUE,
+                     show_param = TRUE,
+                     text_size = 14,
+                     font_family = "serif",
+                     shade_fill = "royalblue") {
   dx <- round(x,2)
   p <- ggplot(data.frame(x = c(mu - 4 * sigma, mu + 4 * sigma)), aes(x)) +
     stat_function(fun = stats::dnorm,
@@ -60,7 +70,7 @@ plotnorm <- function(x,mu,sigma, below = TRUE, show_proportion = TRUE, show_x = 
                   fill = shade_fill,
                   col = NA,
                   n = 1001) +
-    theme_classic(base_family = "serif", base_size = text_size) +
+    theme_classic(base_family = font_family, base_size = text_size) +
     theme(axis.title.y = element_blank(),
           axis.text.y = element_blank(),
           axis.ticks.y = element_blank(),
@@ -76,7 +86,7 @@ plotnorm <- function(x,mu,sigma, below = TRUE, show_proportion = TRUE, show_x = 
         label = paste("P(x<", dx, ")==", round(stats::pnorm(x, mu, sigma), 2)),
         parse = TRUE,
         hjust = 1.05,
-        family = "serif",
+        family = font_family,
         size = text_size * 5 / 14
       ) +
       annotate(
@@ -86,7 +96,7 @@ plotnorm <- function(x,mu,sigma, below = TRUE, show_proportion = TRUE, show_x = 
         label = paste("P(x>", dx, ")==", round(1 - stats::pnorm(x, mu, sigma), 2)),
         parse = TRUE,
         hjust = -0.05,
-        family = "serif",
+        family = font_family,
         size = text_size * 5 / 14
       )
   }
@@ -100,7 +110,7 @@ plotnorm <- function(x,mu,sigma, below = TRUE, show_proportion = TRUE, show_x = 
         label = paste("x == ",dx),
         vjust = 1.1,
         parse = TRUE,
-        family = "serif",
+        family = font_family,
         size = text_size * 5 / 14)
   }
 
@@ -113,7 +123,7 @@ plotnorm <- function(x,mu,sigma, below = TRUE, show_proportion = TRUE, show_x = 
         label = paste("mu==",mu),
         vjust = -.1,
         parse = TRUE,
-        family = "serif",
+        family = font_family,
         size = text_size * 5 / 14) +
       annotate(
         geom = "text",
@@ -122,7 +132,7 @@ plotnorm <- function(x,mu,sigma, below = TRUE, show_proportion = TRUE, show_x = 
         label = paste("sigma==", sigma),
         vjust = -.3,
         parse = TRUE,
-        family = "serif",
+        family = font_family,
         size = text_size * 5 / 14) +
       annotate(
         geom = "segment",
@@ -143,7 +153,11 @@ plotnorm <- function(x,mu,sigma, below = TRUE, show_proportion = TRUE, show_x = 
 #'
 #' @export
 #' @param f output of a factor analysis from the psych::fa function
-#' @param factor_names names of the factors #' @import patchwork
+#' @param font_family Name of font
+#' @param font_size Size of font
+#' @param factor_names names of the factors #'
+#' @param nudge_loadings nudge loadings on x dimension
+#' @import patchwork
 #' @import ggplot2
 #' @import patchwork
 #' @importFrom rlang .data
@@ -151,11 +165,17 @@ plotnorm <- function(x,mu,sigma, below = TRUE, show_proportion = TRUE, show_x = 
 #' library(psych)
 #' fit <- fa(psych::bfi[,1:25], nfactors = 5)
 #' plot_loading(fit)
-plot_loading <- function(f, factor_names = sort(colnames(f$loadings))) {
+plot_loading <- function(f,
+                         font_family = "serif",
+                         font_size = 14,
+                         factor_names = sort(colnames(f$loadings)),
+                         nudge_loadings = 0.05) {
   factor_names <- stringr::str_replace_all(factor_names, "_", "\n")
 
-  d_factor_names <- tibble::tibble(Factor = colnames(f$loadings), Factor_labels = factor_names) %>%
+  d_factor_names <- tibble::tibble(Factor = colnames(f$loadings),
+                                   Factor_labels = factor_names) %>%
     dplyr::mutate(Factor_labels = forcats::fct_inorder(.data$Factor_labels))
+
   p1 <- f %>%
     psych::fa.sort() %>%
     `[[`("loadings") %>%
@@ -168,19 +188,20 @@ plot_loading <- function(f, factor_names = sort(colnames(f$loadings))) {
     dplyr::left_join(d_factor_names, by = "Factor") %>%
     ggplot(aes(.data$Factor_labels, .data$Test)) +
     geom_tile(aes(fill = .data$Loadings)) +
-    geom_text(aes(label = formatC(.data$Loadings, 2, format = "f") %>%
-                    stringr::str_remove("^0") %>%
-                    stringr::str_replace("^-0", "-")),
-              family = "serif") +
+    geom_text(aes(label = prob_label(.data$Loadings)),
+              family = font_family,
+              hjust = 1,
+              nudge_x = nudge_loadings,
+              size = ggtext_size(font_size)) +
     scale_fill_gradient2(low = "firebrick", mid = "white", high = "royalblue", midpoint = 0, limits = c(-1,1)) +
-    theme_minimal(base_family = "serif", base_size = 14) +
+    theme_minimal(base_family = font_family, base_size = font_size) +
     labs(x = NULL, y = NULL) +
     theme(legend.position = "none") +
     ggtitle(paste0("Factor Loadings", ifelse(any(abs(f$loadings) > 1), " (Heywood case detected)","")))
 
   if (f$factors == 1) p1 else {
     p2 <-  corrr::as_cordf(f$Phi, diagonal = 1) %>%
-      dplyr::rename(Factor = .data$rowname) %>%
+      dplyr::rename(Factor = .data$term) %>%
       tidyr::gather(key = "f", value = "r", -.data$Factor) %>%
       dplyr::left_join(d_factor_names, by = "Factor") %>%
       dplyr::mutate(Factor_col = forcats::fct_rev(.data$Factor_labels)) %>%
@@ -192,17 +213,18 @@ plot_loading <- function(f, factor_names = sort(colnames(f$loadings))) {
       dplyr::mutate(Factor_col = forcats::fct_relabel(.data$Factor_col, stringr::str_replace_all, pattern = "\n", " ")) %>%
       ggplot(aes(.data$Factor_row, .data$Factor_col)) +
       geom_tile(aes(fill = .data$r)) +
-      geom_text(aes(label = formatC(.data$r, 2, format = "f") %>%
-                      stringr::str_remove("^0") %>%
-                      stringr::str_replace("^-0", "-")),
-                family = "serif") +
+      geom_text(aes(label = prob_label(.data$r)),
+                family = font_family,
+                size = ggtext_size(font_size),
+                hjust = 1,
+                nudge_x = nudge_loadings) +
       scale_fill_gradient2(
         low = "firebrick",
         mid = "white",
         high = "royalblue",
         midpoint = 0,
         limits = c(-1,1)) +
-      theme_minimal() +
+      theme_minimal(base_family = font_family, base_size = 14) +
       theme(legend.position = "none") +
       labs(x = NULL, y = NULL) +
       ggtitle("Factor Correlations")
@@ -285,7 +307,7 @@ cor_heat <- function(
 
   superheat::superheat(
     X = r,
-    X.text = cor_text(r),
+    X.text = prob_label(r),
     X.text.size = text_size,
     col.dendrogram = dendrograms & reorder_vars,
     row.dendrogram = dendrograms & reorder_vars,
@@ -388,6 +410,42 @@ proportion2percentile <- function(p,
 }
 
 
+#' Format numeric probabilities as text labels
+#'
+#' @param p numeric vector of probabilities
+#' @param accuracy accuracy of rounding
+#' @param digits optional number of digits to round. Overrides accuracy parameter
+#' @param remove_leading_zero Removes leading zero from probability
+#' @param round_zero_one Apply rounding to 0 and 1
+#'
+#' @return character vector
+#' @export
+#'
+#' @examples
+#' prob_label(seq(0,1, 0.1))
+prob_label <- function(p,
+                       accuracy = 0.01,
+                       digits = NULL,
+                       remove_leading_zero = TRUE,
+                       round_zero_one = TRUE) {
+  if (is.null(digits)) {
+    l <- scales::number(p, accuracy = accuracy)
+  } else {
+    l <- formatC(p, digits = digits, format = "fg")
+  }
+  if (remove_leading_zero) l <- sub("^-0","-", sub("^0","", l))
+
+  if (round_zero_one) {
+    l[p == 0] <- "0"
+    l[p == 1] <- "1"
+    l[p == -1] <- "-1"
+  }
+
+  dim(l) <- dim(p)
+  l
+}
+
+
 #' Random beta distribution with specified mean and sd
 #'
 #' @param n Number of data points
@@ -453,6 +511,7 @@ make_indicators <- function(latent, indicators = NULL, mu = 0.8, sigma = 0.05, k
 #' @param d data to be analyzed
 #' @param fm factor method passed to psych::fa.parallel
 #' @param vcolors vector of 2 colors for lines
+#' @param font_family Name of font
 #' @param ... parameters passed to psych::fa.parallel
 #' @importFrom rlang .data
 #' @import ggplot2
@@ -461,7 +520,11 @@ make_indicators <- function(latent, indicators = NULL, mu = 0.8, sigma = 0.05, k
 #' @examples
 #' d <- psych::bfi[,1:25]
 #' parallel_analysis(d)
-parallel_analysis <- function(d, fm = "pa", vcolors = c("firebrick", "royalblue"), ...) {
+parallel_analysis <- function(d,
+                              fm = "pa",
+                              vcolors = c("firebrick", "royalblue"),
+                              font_family = "serif",
+                              ...) {
   invisible(utils::capture.output( pa <- psych::fa.parallel(d, fm = fm, plot = F, ...)))
   x <- pa$nfact
   y <- pa$fa.values[pa$nfact]
@@ -476,7 +539,7 @@ parallel_analysis <- function(d, fm = "pa", vcolors = c("firebrick", "royalblue"
                color = .data$Type)) +
     geom_line() +
     geom_point() +
-    theme_minimal(base_family = "serif") +
+    theme_minimal(base_family = font_family) +
     scale_color_manual(NULL, values = vcolors) +
     scale_x_continuous("Eigenvalues", minor_breaks = NULL, breaks = seq_along(pa$fa.values)) +
     scale_y_continuous("Factors") +
@@ -492,7 +555,7 @@ parallel_analysis <- function(d, fm = "pa", vcolors = c("firebrick", "royalblue"
       label = "Last observed eigenvalue above simulated data",
       hjust = 0,
       vjust = -0.5,
-      family = "serif"
+      family = font_family
     ) +
     annotate("point",
              x = x,
@@ -533,7 +596,7 @@ attach_function <- function(f) {
 #'
 #' @param x vector of  numbers
 #' @param digits rounding digits
-#'
+#' @param ... Arguments passed to formatC
 #' @return vector of characters
 #' @export
 #'
@@ -566,6 +629,279 @@ df2matrix <- function(d, first_col_is_row_names = TRUE) {
 }
 
 
+#' Convert ggplot theme font size to geom_text size
+#'
+#' @param base_size theme font size
+#' @param ratio ratio of text size to theme font size. Defaults to .8 so that geom text will be the same size as default sized axis labels.
+#'
+#' @return numeric vector
+#' @export
+#'
+#' @examples
+#'
+#' ggtext_size(16)
+ggtext_size <- function(base_size, ratio = 0.8) {
+  ratio * base_size / 2.845276
+}
 
 
+#' Paste matrix code from clipboard
+#'
+#' @param digits Number of digits to round
+#' @param as_matrix Convert to matrix. Defaults to `TRUE`
+#'
+#' @return
+#' @export
+#'
+paste_matrix_from_clipboard <- function(digits = 2, as_matrix = TRUE) {
+  x <- readr::read_tsv(utils::readClipboard())
+  rn <- colnames(x)[1]
+  x <- x %>%
+    dplyr::mutate(
+      dplyr::across(tidyselect:::where(is.numeric),
+                    .fns = formatC,
+                    digits = digits,
+                    format = "f")) %>%
+    t() %>%
+    as.data.frame() %>%
+    tibble::rownames_to_column() %>%
+    apply(1, format) %>%
+    apply(1, paste, collapse = "\t") %>%
+    paste0(collapse = "\n")
 
+    my_matrix <- paste0('"\n',
+           x,
+           '" %>%\n\treadr::read_tsv()',
+           ifelse(as_matrix,
+                  paste0(" %>%\n\ttibble::column_to_rownames(\"",
+                         rn,
+                         "\") %>%\n\tas.matrix()"),
+                  ""))
+
+  rstudioapi = rstudioapi::insertText(my_matrix)
+}
+
+#' Make latex array
+#'
+#' @param M A matrix
+#' @param left left delimiter options: [(|
+#' @param right right delimiter options: ])|
+#' @param env Array environment
+#' @param includenames Include column and row names
+#' @param align Column alignment. For a three column matrix, alignment defaults to centering columns("ccc"). If there are row labels, the default would be "r|ccc" to right-align the row labels and separate them with vertical line.
+#' @param lines Include lines separating column and row names
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' M <- diag(3)
+#' colnames(M) <- LETTERS[1:3]
+#' rownames(M) <- LETTERS[1:3]
+#' latexarray(M)
+latexarray <- function(M,
+                       left = "",
+                       right = "",
+                       env = "array",
+                       includenames = TRUE,
+                       align = NULL,
+                       lines = TRUE) {
+
+    if (is.null(align)) newalign <- paste0(rep("c", ncol(M)), collapse = "") else newalign = align
+
+    if (includenames) {
+      if (!is.null(colnames(M))) {
+        M <- rbind(colnames(M), M)
+      }
+
+      if (!is.null(rownames(M))) {
+        M <- cbind(rownames(M), M)
+        if (lines & is.null(align)) newalign <- paste0("r|", newalign)
+      }
+
+      if (!is.null(colnames(M)) & lines) {
+        # M[1, 1] <- paste0("\\hline ", M[1, 1])
+        M[2, 1] <- paste0("\\hline ", M[2, 1])
+      }
+
+    }
+    strM <-  paste(apply(
+      M,
+      MARGIN = 1,
+      FUN = paste0,
+      collapse = " & "
+    ),
+    collapse = "\\\\\n")
+
+    # if (includenames & !is.null(colnames(M)) & lines) {
+    #   strM <- paste0(strM, "\\\\\n\\hline")
+    # }
+
+    if (nchar(left) > 0 | is.na(left) | is.null(left)) {
+      left <- paste0("\\left", left)
+      }
+    if (nchar(right) > 0 | is.na(right) | is.null(right)) {
+      right <- paste0("\\right", right)
+      }
+
+
+    if (!is.null(env)) {
+      strM <- paste0(
+        left,
+        "\\begin{",
+        env,
+        "}{",
+        newalign,
+        "}\n",
+        strM,
+        "\n\\end{",
+        env ,
+        "}",
+        right
+      )
+    }
+    strM
+  }
+
+
+#' Insert latex colors into a matrix
+#'
+#' @param m matrix of values
+#' @param color_cells matrix of latex colors for matrix cells
+#' @param color_rownames vector of latex colors for row names
+#' @param color_colnames vector of latex colors for column names
+#'
+#' @return matrix
+#' @export
+#'
+#' @examples
+#' # A matrix of zeros
+#' m <- matrix(0, nrow = 2, ncol = 2)
+#'
+#' # A matrix of NA values the same size as m
+#' latex_colors <- m * NA
+#'
+#' # Make the top row red
+#' latex_colors[1,] <- "red"
+#'
+#' # Insert colors into m
+#' insert_latex_color(m, latex_colors)
+insert_latex_color <- function(m,
+                               color_cells,
+                               color_rownames = NULL,
+                               color_colnames = NULL) {
+  m[!is.na(color_cells)] <- paste0("\\color{",
+                          color_cells[!is.na(color_cells)],
+                          "}{",
+                          m[!is.na(color_cells)],
+                          "}")
+  if (is.matrix(m)) {
+    if (!is.null(color_colnames) & !is.null(colnames(m))) {
+      colnames(m)[!is.na(color_colnames)] <- paste0(
+        "\\color{",
+        color_colnames[!is.na(color_colnames)],
+        "}{",
+        colnames(m)[!is.na(color_colnames)],
+        "}")
+    }
+
+    if (!is.null(color_rownames) & !is.null(rownames(m))) {
+      rownames(m)[!is.na(color_rownames)] <- paste0(
+        "\\color{",
+        color_rownames[!is.na(color_rownames)],
+        "}{",
+        rownames(m)[!is.na(color_rownames)],
+        "}")
+    }
+  }
+
+  m
+}
+
+
+#' Create unique combinations of vectors
+#'
+#' @param ... vectors
+#' @param sep Separate character
+#'
+#' @return A character vector
+#' @export
+#'
+#' @examples
+#' cross_vectors(c("a", "b"), c(1,2))
+cross_vectors <- function(..., sep = "_") {
+  tidyr::expand_grid(...) %>%
+    apply(1,
+          paste0,
+          collapse = "_")
+}
+
+
+#' @title modregplot
+#' @description generates simple slopes plot from moderated regression equation
+#' @param predictor_range a length 2 vector of the range of values to be plotted on the predictor variable, Default: c(-4, 4)
+#' @param moderator_values a vector of moderator values to be plotted, Default: c(-1, 0, 1)
+#' @param intercept the intercept of the regression equation, Default: 0
+#' @param predictor_coef the regression coefficient for the predictor variable, Default: 0
+#' @param moderator_coef the regression coefficient for the moderator variable, Default: 0
+#' @param interaction_coef the interaction term coefficent, Default: 0
+#' @param predictor_label the label for the predictor variable, Default: 'X'
+#' @param criterion_label the label for the moderator variable, Default: 'Y'
+#' @param moderator_label PARAM_DESCRIPTION, Default: 'Moderator'
+#' @return a ggplot of the simple slopes
+#' @examples
+#' modregplot(
+#'   predictor_range = c(-2, 2),
+#'   moderator_values = c(Low = -1, High = 1),
+#'   intercept = 6,
+#'   predictor_coef = 2,
+#'   moderator_coef = 0,
+#'   interaction_coef = 1,
+#'   predictor_label = "Psychopathy",
+#'   criterion_label = "Aggression",
+#'   moderator_label = "Impulsivity"
+#' )
+#' @rdname modregplot
+#' @export
+modregplot <- function(predictor_range = c(-4,4),
+                       moderator_values = c(-1,0,1),
+                       intercept = 0,
+                       predictor_coef = 0,
+                       moderator_coef = 0,
+                       interaction_coef = 0,
+                       predictor_label = "X",
+                       criterion_label = "Y",
+                       moderator_label = "Moderator") {
+  d <- tidyr::crossing(x = predictor_range,
+                       m = moderator_values)
+  d <- dplyr::mutate(
+    d,
+    xm = .data$x * .data$m,
+    yhat = intercept +
+      .data$x * predictor_coef +
+      .data$m * moderator_coef +
+      .data$xm * interaction_coef
+  )
+
+  if (is.null(names(moderator_values))) {
+    d <- dplyr::mutate(
+      d,
+      m = factor(.data$m)
+    )
+  } else {
+    d <- dplyr::mutate(
+      d,
+      m = factor(.data$m,
+                 levels = moderator_values,
+                 labels = names(moderator_values))
+    )
+  }
+
+
+  ggplot2::ggplot(d, ggplot2::aes(.data$x, .data$yhat, color = .data$m)) +
+    ggplot2::geom_line() +
+    ggplot2::labs(x = predictor_label,
+                  y = criterion_label,
+                  color = moderator_label)
+
+}

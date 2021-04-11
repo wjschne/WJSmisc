@@ -4,7 +4,13 @@
 \alias{parallel_analysis}
 \title{ggplot of parallel analysis from the psych package}
 \usage{
-parallel_analysis(d, fm = "pa", vcolors = c("firebrick", "royalblue"), ...)
+parallel_analysis(
+  d,
+  fm = "pa",
+  vcolors = c("firebrick", "royalblue"),
+  font_family = "serif",
+  ...
+)
 }
 \arguments{
 \item{d}{data to be analyzed}
@@ -12,6 +18,8 @@ parallel_analysis(d, fm = "pa", vcolors = c("firebrick", "royalblue"), ...)
 \item{fm}{factor method passed to psych::fa.parallel}
 
 \item{vcolors}{vector of 2 colors for lines}
+
+\item{font_family}{Name of font}
 
 \item{...}{parameters passed to psych::fa.parallel}
 }
