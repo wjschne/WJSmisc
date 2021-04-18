@@ -11,9 +11,6 @@ paste_matrix_from_clipboard(digits = 2, as_matrix = TRUE)
 
 \item{as_matrix}{Convert to matrix. Defaults to `TRUE`}
 }
-\value{
-
-}
 \description{
 Paste matrix code from clipboard
 }

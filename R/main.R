@@ -588,7 +588,8 @@ x2z <- function(x, mu = mean(x, na.rm = T), sigma = stats::sd(x, na.rm = T)) {
 #' # Sets y to 2
 #' attach_function(my_function)
 attach_function <- function(f) {
-  attach(rlist::list.clean(as.list(formals(f)),is.name))
+  args <- rlist::list.clean(as.list(formals(f)),is.name)
+  purrr::walk2(names(args), args, assign, envir = .GlobalEnv)
 }
 
 
@@ -649,16 +650,13 @@ ggtext_size <- function(base_size, ratio = 0.8) {
 #'
 #' @param digits Number of digits to round
 #' @param as_matrix Convert to matrix. Defaults to `TRUE`
-#'
-#' @return
 #' @export
-#'
 paste_matrix_from_clipboard <- function(digits = 2, as_matrix = TRUE) {
   x <- readr::read_tsv(utils::readClipboard())
   rn <- colnames(x)[1]
   x <- x %>%
     dplyr::mutate(
-      dplyr::across(tidyselect:::where(is.numeric),
+      dplyr::across(tidyselect::vars_select_helpers$where(is.numeric),
                     .fns = formatC,
                     digits = digits,
                     format = "f")) %>%
@@ -690,10 +688,8 @@ paste_matrix_from_clipboard <- function(digits = 2, as_matrix = TRUE) {
 #' @param includenames Include column and row names
 #' @param align Column alignment. For a three column matrix, alignment defaults to centering columns("ccc"). If there are row labels, the default would be "r|ccc" to right-align the row labels and separate them with vertical line.
 #' @param lines Include lines separating column and row names
-#'
-#' @return
+#' @return character string
 #' @export
-#'
 #' @examples
 #' M <- diag(3)
 #' colnames(M) <- LETTERS[1:3]
@@ -905,3 +901,25 @@ modregplot <- function(predictor_range = c(-4,4),
                   color = moderator_label)
 
 }
+
+#' Probability a true score will be below a threshold
+#'
+#' @param x observed score
+#' @param threshold threshold
+#' @param rxx reliability coefficient
+#' @param mu population mean
+#' @param sigma population standard deviation
+#'
+#' @return probability
+#' @export
+#'
+#' @examples
+#' pthreshold(x = .5, threshold = 1, rxx = 0.9)
+pthreshold <- function(x, threshold, rxx, mu = 0, sigma = 1) {
+  est_true <- (x - mu) * rxx + mu
+  see <- sigma * sqrt(rxx - rxx ^ 2)
+  z <- (threshold - est_true) / see
+  stats::pnorm(z)
+}
+
+

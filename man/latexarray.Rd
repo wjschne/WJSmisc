@@ -30,7 +30,7 @@ latexarray(
 \item{lines}{Include lines separating column and row names}
 }
 \value{
-
+character string
 }
 \description{
 Make latex array

@@ -30,9 +30,13 @@ Imports:
     utils,
     purrr,
     rlist,
-    scales
+    scales,
+    readr,
+    rstudioapi,
+    tidyselect
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
 Suggests: 
+    roxygen2,
     testthat (>= 2.1.0)
