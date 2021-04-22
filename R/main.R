@@ -276,7 +276,7 @@ rho
 #' Title
 #'
 #' @export
-#' @param d Data
+#' @param d Data or correlation matrix
 #' @param test_names Vector of names of variables
 #' @param margins Width of margins for labels
 #' @param text_size Size of text
@@ -299,7 +299,8 @@ cor_heat <- function(
   heat.lim = c(-1, 1),
   heat.pal.values = seq(0,1, 1 / (length(palette_col) - 1)),
   ...) {
-  r <- stats::cor(d, use = "pairwise")
+
+  if (isSymmetric(d)) r <- d else r <- stats::cor(d, use = "pairwise")
 
 
 
