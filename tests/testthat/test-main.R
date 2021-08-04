@@ -24,3 +24,13 @@ test_that("remove leading zero", {
   expect_equal(remove_leading_zero(1.5, digits = 2), "1.50")
   expect_equal(remove_leading_zero(0, digits = 2), ".00")
 })
+
+
+test_that("prob_label", {
+  expect_equal(prob_label(c(.0010, .00123, .010, .09, .091, .4, .6, 0.988, .99, .998, .999, .99986), digits = 2),
+               c(".001", ".0012", ".01", ".090", ".091", ".40", ".60", ".99", ".99", ".998", ".999", ".9999"))
+})
+
+
+
+

@@ -6,7 +6,7 @@
 \usage{
 plot_loading(
   f,
-  font_family = "serif",
+  font_family = "sans",
   font_size = 14,
   factor_names = sort(colnames(f$loadings)),
   nudge_loadings = 0.05

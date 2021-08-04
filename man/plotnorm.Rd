@@ -5,15 +5,15 @@
 \title{Plot a normal distribution shading below x}
 \usage{
 plotnorm(
-  x,
-  mu,
-  sigma,
+  x = 0,
+  mu = 0,
+  sigma = 1,
   below = TRUE,
   show_proportion = TRUE,
   show_x = TRUE,
   show_param = TRUE,
   text_size = 14,
-  font_family = "serif",
+  font_family = "sans",
   shade_fill = "royalblue"
 )
 }

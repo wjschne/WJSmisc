@@ -2,7 +2,7 @@
 % Please edit documentation in R/main.R
 \name{cor_heat}
 \alias{cor_heat}
-\title{Title}
+\title{Correlation plot}
 \usage{
 cor_heat(
   d,
@@ -19,7 +19,7 @@ cor_heat(
 )
 }
 \arguments{
-\item{d}{Data}
+\item{d}{Data or correlation matrix}
 
 \item{test_names}{Vector of names of variables}
 
@@ -42,5 +42,5 @@ cor_heat(
 \item{...}{Additional parameters passed to superheat::superheat}
 }
 \description{
-Title
+Correlation plot
 }

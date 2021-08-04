@@ -44,15 +44,15 @@ composite_covariance <- function(Sigma,w, correlation = FALSE) {
 #' @import ggplot2
 #' @examples
 #' plotnorm(90, 100, 15)
-plotnorm <- function(x,
-                     mu,
-                     sigma,
+plotnorm <- function(x = 0,
+                     mu = 0,
+                     sigma = 1,
                      below = TRUE,
                      show_proportion = TRUE,
                      show_x = TRUE,
                      show_param = TRUE,
                      text_size = 14,
-                     font_family = "serif",
+                     font_family = "sans",
                      shade_fill = "royalblue") {
   dx <- round(x,2)
   p <- ggplot(data.frame(x = c(mu - 4 * sigma, mu + 4 * sigma)), aes(x)) +
@@ -70,20 +70,22 @@ plotnorm <- function(x,
                   fill = shade_fill,
                   col = NA,
                   n = 1001) +
-    theme_classic(base_family = font_family, base_size = text_size) +
+    theme_classic(base_family = font_family,
+                  base_size = text_size,
+                  base_line_size = .25) +
     theme(axis.title.y = element_blank(),
           axis.text.y = element_blank(),
           axis.ticks.y = element_blank(),
           axis.line.y = element_blank()) +
     labs(x = NULL, y = NULL) +
-    scale_x_continuous(breaks = seq(-4, 4) * sigma + mu)
+    scale_x_continuous(breaks = seq(-4, 4) * sigma + mu, labels = label_parsed)
   if (show_proportion) {
     p <-  p +
       annotate(
         "text",
         x,
         0.05 * stats::dnorm(mu, mu, sigma),
-        label = paste("P(x<", dx, ")==", round(stats::pnorm(x, mu, sigma), 2)),
+        label = paste("P(italic(x)<", dx, ")=='", prob_label(stats::pnorm(x, mu, sigma)), "'"),
         parse = TRUE,
         hjust = 1.05,
         family = font_family,
@@ -93,7 +95,7 @@ plotnorm <- function(x,
         "text",
         x,
         0.05 * stats::dnorm(mu, mu, sigma),
-        label = paste("P(x>", dx, ")==", round(1 - stats::pnorm(x, mu, sigma), 2)),
+        label = paste("P(italic(x)>", dx, ")=='", prob_label(1 - stats::pnorm(x, mu, sigma)), "'"),
         parse = TRUE,
         hjust = -0.05,
         family = font_family,
@@ -107,7 +109,7 @@ plotnorm <- function(x,
         geom = "text",
         x = x,
         y = 0,
-        label = paste("x == ",dx),
+        label = paste("italic(x) == ",dx),
         vjust = 1.1,
         parse = TRUE,
         family = font_family,
@@ -166,7 +168,7 @@ plotnorm <- function(x,
 #' fit <- fa(psych::bfi[,1:25], nfactors = 5)
 #' plot_loading(fit)
 plot_loading <- function(f,
-                         font_family = "serif",
+                         font_family = "sans",
                          font_size = 14,
                          factor_names = sort(colnames(f$loadings)),
                          nudge_loadings = 0.05) {
@@ -272,8 +274,7 @@ rho
 
 
 
-# Correlation plot
-#' Title
+#' Correlation plot
 #'
 #' @export
 #' @param d Data or correlation matrix
@@ -300,7 +301,12 @@ cor_heat <- function(
   heat.pal.values = seq(0,1, 1 / (length(palette_col) - 1)),
   ...) {
 
-  if (isSymmetric(d)) r <- d else r <- stats::cor(d, use = "pairwise")
+  if (is.matrix(d)) {
+    if (isSymmetric(d)) {
+      r <- d
+    }
+    } else {
+    r <- stats::cor(d, use = "pairwise")}
 
 
 
@@ -406,7 +412,7 @@ proportion2percentile <- function(p,
     p1 <- paste0(p1,"%")
   }
 
-  p1
+  stringr::str_remove_all(p1, " ")
 
 }
 
@@ -432,7 +438,16 @@ prob_label <- function(p,
   if (is.null(digits)) {
     l <- scales::number(p, accuracy = accuracy)
   } else {
-    l <- formatC(p, digits = digits, format = "fg")
+    sig_digits <- abs(ceiling(log10(p + p / 1000000000)) - digits)
+    sig_digits[p > 0.99] <- abs(ceiling(log10(1 - p[p > 0.99])) - digits + 1)
+    sig_digits[ceiling(log10(p)) == log10(p)] <- sig_digits[ceiling(log10(p)) == log10(p)] - 1
+    sig_digits[is.infinite(sig_digits)] <- 0
+    l <- purrr::map2_chr(p,
+                         sig_digits,
+                         formatC,
+                         format = "f",
+                         flag = "#")
+
   }
   if (remove_leading_zero) l <- sub("^-0","-", sub("^0","", l))
 
@@ -511,6 +526,7 @@ make_indicators <- function(latent, indicators = NULL, mu = 0.8, sigma = 0.05, k
 #'
 #' @param d data to be analyzed
 #' @param fm factor method passed to psych::fa.parallel
+#' @param factor_based TRUE is factor-based and FALSE is principal component-based
 #' @param vcolors vector of 2 colors for lines
 #' @param font_family Name of font
 #' @param ... parameters passed to psych::fa.parallel
@@ -523,17 +539,28 @@ make_indicators <- function(latent, indicators = NULL, mu = 0.8, sigma = 0.05, k
 #' parallel_analysis(d)
 parallel_analysis <- function(d,
                               fm = "pa",
+                              factor_based = TRUE,
                               vcolors = c("firebrick", "royalblue"),
-                              font_family = "serif",
+                              font_family = "sans",
                               ...) {
   invisible(utils::capture.output( pa <- psych::fa.parallel(d, fm = fm, plot = F, ...)))
-  x <- pa$nfact
-  y <- pa$fa.values[pa$nfact]
-  tibble::tibble(
-    `Observed Data` = pa$fa.values,
-    `Simulated Data` = pa$fa.sim,
-    Factors = seq_along(pa$fa.values)
-  ) %>%
+  if (factor_based) {
+    x <- pa$nfact
+    y <- pa$fa.values[pa$nfact]
+    df <- tibble::tibble(`Observed Data` = pa$fa.values,
+                 `Simulated Data` = pa$fa.sim,
+                 Factors = seq_along(pa$fa.values))
+  } else {
+    x <- pa$ncomp
+    y <- pa$pc.values[pa$ncomp]
+    df <- tibble::tibble(`Observed Data` = pa$pc.values,
+                 `Simulated Data` = pa$pc.sim,
+                 Factors = seq_along(pa$pc.values))
+    }
+
+
+
+  df %>%
     tidyr::gather("Type", "Eigenvalues",-.data$Factors) %>%
     ggplot(aes(.data$Factors,
                .data$Eigenvalues,
@@ -562,7 +589,7 @@ parallel_analysis <- function(d,
              x = x,
              y = y,
              size = 2) +
-    ggtitle(paste0("Parallel analysis suggests ", x, " factor",ifelse(x == 1, "","s"),"."))
+    ggtitle(paste0("Parallel analysis (based on ",ifelse(factor_based, "factor analysis", "principal component analysis"),") suggests ", x, " factor",ifelse(x == 1, "","s"),"."))
 }
 
 #' Convert x to a z-score
@@ -830,11 +857,11 @@ cross_vectors <- function(..., sep = "_") {
   tidyr::expand_grid(...) %>%
     apply(1,
           paste0,
-          collapse = "_")
+          collapse = sep)
 }
 
 
-#' @title modregplot
+#' @title Simple slopes plot
 #' @description generates simple slopes plot from moderated regression equation
 #' @param predictor_range a length 2 vector of the range of values to be plotted on the predictor variable, Default: c(-4, 4)
 #' @param moderator_values a vector of moderator values to be plotted, Default: c(-1, 0, 1)
@@ -922,5 +949,287 @@ pthreshold <- function(x, threshold, rxx, mu = 0, sigma = 1) {
   z <- (threshold - est_true) / see
   stats::pnorm(z)
 }
+
+
+
+#' Regression from correlation matrix
+#'
+#' @param R correlation matrix
+#' @param ind independent variables
+#' @param dep dependent variable
+#'
+#' @return list of coefficients and R2
+#' @export
+lm_matrix <- function(R, ind, dep) {
+  R <- R[c(dep, ind), c(dep, ind), drop = F]
+  Rxx <- R[ind, ind, drop = F]
+  iR <- solve(Rxx)
+  Rxy <- R[ind, dep, drop = F]
+  b <- iR %*% Rxy
+  R2 <- 1 - det(R) / det(Rxx)
+  list(b = b, R2 = R2)
+}
+
+
+#' Create square correlation matrix from lower triangle
+#'
+#' @param x vector of correlations
+#'
+#' @return square matrix
+#' @export
+#'
+#' @examples
+#' tri2cor(c(.2,.3,.4))
+tri2cor <- function(x) {
+  l <- length(x)
+  n <- (1 + sqrt(1 + 8 * l)) / 2
+  if (n != round(n)) stop("Not a square matrix")
+  R <- matrix(0, n, n)
+  R[lower.tri(R)] <- x
+  R <- R + t(R)
+  diag(R) <- 1
+  R
+}
+
+
+#' Generate correlation ellipse data
+#'
+#' @param r Correlation coefficient
+#' @param mean Vector of 2 means
+#' @param sd Vector of 2 standard deviations
+#' @param p Proportion of data ellipse covers
+#' @param split_x Split ellipse at x value
+#' @param split_y Split ellipse at y value
+#' @param n_points Number of points
+#'
+#' @return data.frame
+#' @export
+#'
+#' @examples
+#' cor_ellipse(r = .75)
+cor_ellipse <- function(r = 0,
+                        mean = c(0,0),
+                        sd = c(1,1),
+                        p = 0.95,
+                        split_x = NULL,
+                        split_y = NULL,
+                        n_points = 10000) {
+
+  sigma <- diag(sd) %*% matrix(c(1,r,r,1),2,2) %*% diag(sd)
+  eigen.info <- eigen(sigma)
+
+  theta <- atan(eigen.info$vectors[1] / eigen.info$vectors[2])
+  lengths <- sqrt(eigen.info$values * stats::qchisq(p, 2))
+  a = lengths[1]
+  b = lengths[2]
+  t = seq(0,2 * pi, length.out = n_points)
+
+  d <- data.frame(
+    y = a * cos(theta) * cos(t) - b * sin(theta) * sin(t) + mean[2],
+    x = a * sin(theta) * cos(t) + b * cos(theta) * sin(t) + mean[1]
+  )
+
+  if (!is.null(split_x) & !is.null(split_y)) {
+    lx <- d$x < split_x
+    ly <- d$y < split_y
+    ux <- d$x >= split_x
+    uy <- d$y >= split_y
+
+    d[ux & uy, "group"] <- "1"
+    d[lx & uy, "group"] <- "2"
+    d[ux & ly, "group"] <- "4"
+    d[lx & ly, "group"] <- "3"
+
+    d1 <- d
+    d1[d1$group != "1", "x"] <- min(d1[d1$group == "1", "x"])
+    d1[d1$group != "1", "y"] <- min(d1[d1$group == "1", "y"])
+    d1$group = "1"
+    d1 <- unique(d1)
+
+    d2 <- d
+    d2[d2$group != "2", "x"] <- max(d2[d2$group == "2", "x"])
+    d2[d2$group != "2", "y"] <- min(d2[d2$group == "2", "y"])
+    d2$group = "2"
+    d2 <- unique(d2)
+
+    d3 <- d
+    d3[d3$group != "3", "x"] <- max(d3[d3$group == "3", "x"])
+    d3[d3$group != "3", "y"] <- max(d3[d3$group == "3", "y"])
+    d3$group = "3"
+    d3 <- unique(d3)
+
+    d4 <- d
+    d4[d4$group != "4", "x"] <- min(d4[d4$group == "4", "x"])
+    d4[d4$group != "4", "y"] <- max(d4[d4$group == "4", "y"])
+    d4$group = "4"
+    d4 <- unique(d4)
+    d <- rbind(d1,d2,d3, d4)
+  }
+
+
+  if (!is.null(split_x) & is.null(split_y)) {
+    d[,"group"] <- as.character((d$x < split_x) + 1)
+  }
+
+  if (is.null(split_x) & !is.null(split_y)) {
+    d[,"group"] <- as.character((d$y < split_y) + 1)
+  }
+
+  d
+}
+
+wisc_SS <- c(
+  vci = 130,
+  vsi = 130,
+  fri = 70,
+  wmi = 130,
+  psi = 130
+)
+
+rxx_wisc <- c(
+  vci = .92,
+  vsi = .92,
+  fri = .93,
+  wmi = .92,
+  psi = .88
+)
+
+
+
+#' General a multivariate confidence interval for a set of scores
+#'
+#' @param x a vector of scores
+#' @param rxx a vector reliability coefficients
+#' @param mu  a vector means
+#' @param sigma a covariance matrix
+#' @param ci confidence level
+#' @param v_names a vector of names
+#'
+#' @return data.frame
+#' @export
+#'
+#' @examples
+#' x_wisc <- c(
+#'   vci = 130,
+#'   vsi = 130,
+#'   fri = 70,
+#'   wmi = 130,
+#'   psi = 130
+#' )
+#' rxx_wisc <- c(
+#'   vci = .92,
+#'   vsi = .92,
+#'   fri = .93,
+#'   wmi = .92,
+#'   psi = .88
+#'   )
+#' R_wisc <- ("
+#'   index	vci 	vsi 	fri 	wmi 	psi
+#'   vci  	1.00	0.59	0.59	0.53	0.30
+#'   vsi  	0.59	1.00	0.62	0.50	0.36
+#'   fri  	0.59	0.62	1.00	0.53	0.31
+#'   wmi  	0.53	0.50	0.53	1.00	0.36
+#'   psi  	0.30	0.36	0.31	0.36	1.00") |>
+#'     readr::read_tsv() |>
+#'     tibble::column_to_rownames("index") |>
+#'     as.matrix()
+#'  multivariate_ci(
+#'    x = x_wisc,
+#'    rxx = rxx_wisc,
+#'    mu = rep(100, 5),
+#'    sigma = R_wisc * 225
+#'  )
+multivariate_ci <- function(x, rxx, mu, sigma, ci = .95, v_names = names(x)) {
+  v_observed <- paste0(v_names, "_observed")
+  v_true <- paste0(v_names, "_true")
+  v_all <- c(v_true, v_observed)
+  sigma_true <- `diag<-`(sigma , rxx * diag(sigma))
+  sigma_all <- `dimnames<-`(rbind(cbind(sigma_true, sigma_true),
+                                  cbind(sigma_true, sigma)),
+                            list(v_all,
+                                 v_all))
+  mu_univariate = rxx * (x - mu) + mu
+
+  lower_p <- (1 - ci) / 2
+  upper_p <- 1 - lower_p
+
+  mu_conditional <- mu + sigma_true %*% solve(sigma) %*% (x - mu)
+  sigma_conditional <-
+    sigma_true - sigma_true %*% solve(sigma) %*% t(sigma_true)
+  see_univariate <- sqrt(diag(sigma) * (rxx - rxx ^ 2))
+  see_multivariate <- sqrt(diag(sigma_conditional))
+
+  data.frame(
+    score = v_names,
+    x = x,
+    rxx = rxx,
+    mu_univariate = mu_univariate,
+    see_univariate = see_univariate,
+    mu_multivariate = mu_conditional,
+    see_multivariate = see_multivariate,
+    upper_univariate = stats::qnorm(upper_p, mu_univariate, see_univariate),
+    lower_univariate = stats::qnorm(lower_p, mu_univariate, see_univariate),
+    upper_multivariate = stats::qnorm(upper_p, mu_conditional, see_multivariate),
+    lower_multivariate = stats::qnorm(lower_p, mu_conditional, see_multivariate)
+  )
+
+
+}
+
+
+
+#' Convert angles to ggplot2 vjust
+#'
+#' @param theta angle in radians
+#' @param multiplier distance from point
+#' @param as_degrees use degrees instead of radians
+#'
+#' @return numeric
+#' @export
+#'
+#' @examples
+#' library(tibble)
+#' library(ggplot2)
+#' library(dplyr)
+#' xy_ratio <- pi
+#' tibble(theta = seq(0,2*pi, length.out = 9),
+#'        y =  sin(theta),
+#'        slope = cos(theta) * xy_ratio,
+#'        text_angle = atan(slope) + pi / 2) %>%
+#'    ggplot(aes(theta,y)) +
+#'      stat_function(fun = sin) +
+#'      geom_point() +
+#'      geom_label(aes(label = LETTERS[1:9],
+#'                     vjust = angle2vjust(text_angle, multiplier = 1.5),
+#'                     hjust = angle2hjust(text_angle, multiplier = 1.5)),
+#'                 label.size = NA,
+#'                 label.padding = unit(1, "mm")) +
+#'   scale_x_continuous(expression(theta),
+#'                      breaks = seq(0,2*pi, length.out = 9),
+#'                     labels = label_parsed(c("0", "frac(pi,4)", "frac(pi,2)",
+#'                                              "frac(3 * pi,4)", "pi", "frac(5*pi,4)",
+#'                                              "frac(3 * pi,2)", "frac(7*pi,4)", "2*pi"))) +
+#'   scale_y_continuous(expression(sin(theta))) +
+#'   coord_fixed(ratio = xy_ratio, clip = "off") +
+#'   theme_minimal()
+angle2vjust <- function(theta, multiplier = 1.5, as_degrees = FALSE) {
+  if (as_degrees) theta <- theta * pi / 180
+  (((sin(theta + pi) + 1) / 2) - 0.5) * multiplier + 0.5
+}
+
+
+#' Convert angles to ggplot2 hjust
+#'
+#' @param theta angle in radians
+#' @param multiplier distance from point
+#' @param as_degrees use degrees instead of radians
+#'
+#' @return numeric
+#' @export
+angle2hjust <- function(theta, multiplier = 1.5, as_degrees = FALSE) {
+  if (as_degrees) theta <- theta * pi / 180
+  (((cos(theta + pi) + 1) / 2) - 0.5) * multiplier + 0.5
+}
+
 
 

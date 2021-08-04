@@ -7,8 +7,9 @@
 parallel_analysis(
   d,
   fm = "pa",
+  factor_based = TRUE,
   vcolors = c("firebrick", "royalblue"),
-  font_family = "serif",
+  font_family = "sans",
   ...
 )
 }
@@ -16,6 +17,8 @@ parallel_analysis(
 \item{d}{data to be analyzed}
 
 \item{fm}{factor method passed to psych::fa.parallel}
+
+\item{factor_based}{TRUE is factor-based and FALSE is principal component-based}
 
 \item{vcolors}{vector of 2 colors for lines}
 

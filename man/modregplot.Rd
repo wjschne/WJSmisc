@@ -2,7 +2,7 @@
 % Please edit documentation in R/main.R
 \name{modregplot}
 \alias{modregplot}
-\title{modregplot}
+\title{Simple slopes plot}
 \usage{
 modregplot(
   predictor_range = c(-4, 4),
