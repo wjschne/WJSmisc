@@ -2,8 +2,30 @@
 #' Function that converts pdf files to svg. Must have the pdf2svg program installed (https://github.com/dawbarton/pdf2svg)
 #'
 #' @export
-#' @param s Filename of the pdf file. Omit the ".pdf" at the end.
-pdf2svg <- function(s) {shell(paste0("pdf2svg ",s,".pdf ",s,".svg"))}
+#' @param f Filename of the pdf file. Omit the ".pdf" at the end.
+pdf2svg <- function(f) {shell(paste0("pdf2svg ",f,".pdf ",f,".svg"))}
+
+
+#' Save ggplot as .pdf, then convert to .svg via pdf2svg
+#'
+#' @param f Filename of the svg file. Omit the ".svg" at the end.
+#' @param width width passed to ggplot2::ggsave
+#' @param height width passed to ggplot2::ggsave
+#' @param ... Additional parameters passed to ggplot2::ggsave
+#'
+#' @return
+#' @export
+ggsvg <- function(f, width = 6.5, height = 6.5, ...) {
+  ggplot2::ggsave(
+    filename = paste0(f, ".pdf"),
+    device = cairo_pdf,
+    width = width,
+    height = height,
+    ...
+  )
+  pdf2svg(f)
+  file.show(paste0(f, ".svg"))
+}
 
 
 #' Computes covariances of composite scores given a covariance matrix and a weight matrix
@@ -421,7 +443,8 @@ proportion2percentile <- function(p,
 #'
 #' @param p numeric vector of probabilities
 #' @param accuracy accuracy of rounding
-#' @param digits optional number of digits to round. Overrides accuracy parameter
+#' @param digits Optional. Number of digits to round. Overrides accuracy parameter
+#' @param digits Optional. Maximum zeros or nines before rounding to 0 or 1
 #' @param remove_leading_zero Removes leading zero from probability
 #' @param round_zero_one Apply rounding to 0 and 1
 #'
@@ -433,6 +456,7 @@ proportion2percentile <- function(p,
 prob_label <- function(p,
                        accuracy = 0.01,
                        digits = NULL,
+                       max_digits = NULL,
                        remove_leading_zero = TRUE,
                        round_zero_one = TRUE) {
   if (is.null(digits)) {
@@ -455,6 +479,12 @@ prob_label <- function(p,
     l[p == 0] <- "0"
     l[p == 1] <- "1"
     l[p == -1] <- "-1"
+  }
+
+  if (!is.null(max_digits)) {
+    l[round(p, digits = max_digits) == 0] <- "0"
+    l[round(p, digits = max_digits) == 1] <- "1"
+    l[round(p, digits = max_digits) == -1] <- "-1"
   }
 
   dim(l) <- dim(p)
@@ -680,7 +710,7 @@ ggtext_size <- function(base_size, ratio = 0.8) {
 #' @param as_matrix Convert to matrix. Defaults to `TRUE`
 #' @export
 paste_matrix_from_clipboard <- function(digits = 2, as_matrix = TRUE) {
-  x <- readr::read_tsv(utils::readClipboard())
+  x <- readr::read_tsv(I(utils::readClipboard()))
   rn <- colnames(x)[1]
   x <- x %>%
     dplyr::mutate(

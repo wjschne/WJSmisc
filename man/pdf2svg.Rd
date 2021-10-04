@@ -4,10 +4,10 @@
 \alias{pdf2svg}
 \title{Function that converts pdf files to svg. Must have the pdf2svg program installed (https://github.com/dawbarton/pdf2svg)}
 \usage{
-pdf2svg(s)
+pdf2svg(f)
 }
 \arguments{
-\item{s}{Filename of the pdf file. Omit the ".pdf" at the end.}
+\item{f}{Filename of the pdf file. Omit the ".pdf" at the end.}
 }
 \description{
 Function that converts pdf files to svg. Must have the pdf2svg program installed (https://github.com/dawbarton/pdf2svg)
