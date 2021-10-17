@@ -481,10 +481,16 @@ prob_label <- function(p,
     l[p == -1] <- "-1"
   }
 
-  if (!is.null(max_digits) & round_zero_one) {
-    l[round(p, digits = max_digits) == 0] <- "0"
-    l[round(p, digits = max_digits) == 1] <- "1"
-    l[round(p, digits = max_digits) == -1] <- "-1"
+  if (!is.null(max_digits)) {
+    if (round_zero_one) {
+      l[round(p, digits = max_digits) == 0] <- "0"
+      l[round(p, digits = max_digits) == 1] <- "1"
+      l[round(p, digits = max_digits) == -1] <- "-1"
+    } else {
+      l[round(p, digits = max_digits) == 0] <- paste0(".", paste0(rep("0", max_digits), collapse = ""))
+      l[round(p, digits = max_digits) == 1] <- paste0("1.", paste0(rep("0", max_digits), collapse = ""))
+      l[round(p, digits = max_digits) == -1] <- paste0("-1.", paste0(rep("0", max_digits), collapse = ""))
+    }
   }
 
   dim(l) <- dim(p)
