@@ -481,7 +481,7 @@ prob_label <- function(p,
     l[p == -1] <- "-1"
   }
 
-  if (!is.null(max_digits)) {
+  if (!is.null(max_digits) & round_zero_one) {
     l[round(p, digits = max_digits) == 0] <- "0"
     l[round(p, digits = max_digits) == 1] <- "1"
     l[round(p, digits = max_digits) == -1] <- "-1"
