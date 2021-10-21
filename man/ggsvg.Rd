@@ -15,9 +15,6 @@ ggsvg(f, width = 6.5, height = 6.5, ...)
 
 \item{...}{Additional parameters passed to ggplot2::ggsave}
 }
-\value{
-
-}
 \description{
 Save ggplot as .pdf, then convert to .svg via pdf2svg
 }

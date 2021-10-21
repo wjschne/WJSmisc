@@ -22,6 +22,7 @@ Imports:
     psych,
     rlang (>= 0.1.2),
     stats,
+    grDevices,
     stringr,
     superheat,
     tibble,
@@ -37,7 +38,7 @@ Imports:
     fs
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Suggests: 
     roxygen2,
     testthat (>= 2.1.0)

@@ -18,7 +18,9 @@ prob_label(
 
 \item{accuracy}{accuracy of rounding}
 
-\item{digits}{Optional. Maximum zeros or nines before rounding to 0 or 1}
+\item{digits}{Optional. Number of digits to round. Overrides accuracy parameter}
+
+\item{max_digits}{Optional. Maximum zeros or nines before rounding to 0 or 1}
 
 \item{remove_leading_zero}{Removes leading zero from probability}
 

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Format numeric probabilities as text labels — prob_label • WJSmisc</title>
+<title>Save ggplot as .pdf, then convert to .svg via pdf2svg — ggsvg • WJSmisc</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Format numeric probabilities as text labels — prob_label" />
-<meta property="og:description" content="Format numeric probabilities as text labels" />
+<meta property="og:title" content="Save ggplot as .pdf, then convert to .svg via pdf2svg — ggsvg" />
+<meta property="og:description" content="Save ggplot as .pdf, then convert to .svg via pdf2svg" />
 
 
 
@@ -108,56 +108,44 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Format numeric probabilities as text labels</h1>
+    <h1>Save ggplot as .pdf, then convert to .svg via pdf2svg</h1>
     <small class="dont-index">Source: <a href='https://github.com/wjschne/WJSmisc/blob/master/R/main.R'><code>R/main.R</code></a></small>
-    <div class="hidden name"><code>prob_label.Rd</code></div>
+    <div class="hidden name"><code>ggsvg.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Format numeric probabilities as text labels</p>
+    <p>Save ggplot as .pdf, then convert to .svg via pdf2svg</p>
     </div>
 
-    <pre class="usage"><span class='fu'>prob_label</span><span class='op'>(</span>
-  <span class='va'>p</span>,
-  accuracy <span class='op'>=</span> <span class='fl'>0.01</span>,
-  digits <span class='op'>=</span> <span class='cn'>NULL</span>,
-  max_digits <span class='op'>=</span> <span class='cn'>NULL</span>,
-  remove_leading_zero <span class='op'>=</span> <span class='cn'>TRUE</span>,
-  round_zero_one <span class='op'>=</span> <span class='cn'>TRUE</span>
-<span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>ggsvg</span><span class='op'>(</span><span class='va'>f</span>, width <span class='op'>=</span> <span class='fl'>6.5</span>, height <span class='op'>=</span> <span class='fl'>6.5</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>p</th>
-      <td><p>numeric vector of probabilities</p></td>
+      <th>f</th>
+      <td><p>Filename of the svg file. Omit the ".svg" at the end.</p></td>
     </tr>
     <tr>
-      <th>accuracy</th>
-      <td><p>accuracy of rounding</p></td>
+      <th>width</th>
+      <td><p>width passed to ggplot2::ggsave</p></td>
     </tr>
     <tr>
-      <th>digits</th>
-      <td><p>Optional. Maximum zeros or nines before rounding to 0 or 1</p></td>
+      <th>height</th>
+      <td><p>width passed to ggplot2::ggsave</p></td>
     </tr>
     <tr>
-      <th>remove_leading_zero</th>
-      <td><p>Removes leading zero from probability</p></td>
-    </tr>
-    <tr>
-      <th>round_zero_one</th>
-      <td><p>Apply rounding to 0 and 1</p></td>
+      <th>...</th>
+      <td><p>Additional parameters passed to ggplot2::ggsave</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>character vector</p>
+    
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>prob_label</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>0</span>,<span class='fl'>1</span>, <span class='fl'>0.1</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;  [1] "0"   ".10" ".20" ".30" ".40" ".50" ".60" ".70" ".80" ".90" "1"  </div></pre>
+
+
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

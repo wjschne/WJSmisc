@@ -12,13 +12,11 @@ pdf2svg <- function(f) {shell(paste0("pdf2svg ",f,".pdf ",f,".svg"))}
 #' @param width width passed to ggplot2::ggsave
 #' @param height width passed to ggplot2::ggsave
 #' @param ... Additional parameters passed to ggplot2::ggsave
-#'
-#' @return
 #' @export
 ggsvg <- function(f, width = 6.5, height = 6.5, ...) {
   ggplot2::ggsave(
     filename = paste0(f, ".pdf"),
-    device = cairo_pdf,
+    device = grDevices::cairo_pdf,
     width = width,
     height = height,
     ...
@@ -444,7 +442,7 @@ proportion2percentile <- function(p,
 #' @param p numeric vector of probabilities
 #' @param accuracy accuracy of rounding
 #' @param digits Optional. Number of digits to round. Overrides accuracy parameter
-#' @param digits Optional. Maximum zeros or nines before rounding to 0 or 1
+#' @param max_digits Optional. Maximum zeros or nines before rounding to 0 or 1
 #' @param remove_leading_zero Removes leading zero from probability
 #' @param round_zero_one Apply rounding to 0 and 1
 #'
@@ -605,8 +603,8 @@ parallel_analysis <- function(d,
     geom_point() +
     theme_minimal(base_family = font_family) +
     scale_color_manual(NULL, values = vcolors) +
-    scale_x_continuous("Eigenvalues", minor_breaks = NULL, breaks = seq_along(pa$fa.values)) +
-    scale_y_continuous("Factors") +
+    scale_x_continuous("Factors", minor_breaks = NULL, breaks = seq_along(pa$fa.values)) +
+    scale_y_continuous("Eigenvalues") +
     theme(
       legend.position = c(1, 1),
       legend.justification = c(1, 1),
