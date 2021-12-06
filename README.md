@@ -30,7 +30,7 @@ library(tidyverse)
 plotnorm(95, mu = 100, sigma = 15)
 ```
 
-<img src="man/figures/README-example-1.svg" width="100%" />
+<img src="man/figures/README-example-1.png" width="100%" />
 
 # Correlation heat maps
 
@@ -50,7 +50,7 @@ d <- sim_standardized(
 cor_heat(d, margins = 0.1)
 ```
 
-<img src="man/figures/README-unnamed-chunk-2-1.svg" width="100%" />
+<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
 
 # Parallel Analysis Plot
 
@@ -58,7 +58,7 @@ cor_heat(d, margins = 0.1)
 parallel_analysis(d)
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-1.svg" width="100%" />
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
 
 # Factor Analysis Loading Plot
 
@@ -67,7 +67,7 @@ psych::fa(d, nfactors = 2, fm = "pa") %>%
   plot_loading(factor_names = c("A", "B"))
 ```
 
-<img src="man/figures/README-unnamed-chunk-4-1.svg" width="100%" />
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
 
 # Composite covariance
 
@@ -104,7 +104,7 @@ cor_ellipse(0.75) %>%
   coord_fixed()
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.svg" width="100%" />
+<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
 
 Split at x = 1
 
@@ -115,7 +115,7 @@ cor_ellipse(0.75, split_x = 1) %>%
   coord_fixed()
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.svg" width="100%" />
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
 Split at x = 1 and y = 0
 
@@ -126,7 +126,7 @@ cor_ellipse(0.75, split_x = 1, split_y = 0) %>%
   coord_fixed()
 ```
 
-<img src="man/figures/README-unnamed-chunk-8-1.svg" width="100%" />
+<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
 
 # Every combination of 2 or more vectors
 
@@ -153,7 +153,7 @@ x2z(x) %>%
   geom_rug()
 ```
 
-<img src="man/figures/README-unnamed-chunk-10-1.svg" width="100%" />
+<img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
 
 ``` r
 # z-score with user-specified population mean and sd
@@ -162,7 +162,7 @@ x2z(x, mu = 100, sigma = 15) %>%
   geom_rug()
 ```
 
-<img src="man/figures/README-unnamed-chunk-10-2.svg" width="100%" />
+<img src="man/figures/README-unnamed-chunk-10-2.png" width="100%" />
 
 ``` r
 # Will center score at sample mean if sigma = 1
@@ -171,7 +171,7 @@ x2z(x, sigma = 1) %>%
   geom_rug()
 ```
 
-<img src="man/figures/README-unnamed-chunk-10-3.svg" width="100%" />
+<img src="man/figures/README-unnamed-chunk-10-3.png" width="100%" />
 
 # Attach function argument defaults to global environment
 
@@ -211,7 +211,7 @@ tibble(degrees = seq(0, 345, 15),
   theme_void()
 ```
 
-<img src="man/figures/README-unnamed-chunk-12-1.svg" width="100%" />
+<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
 
 I use these functions to make sure that labels on a curve are
 perpendicular to the curve:
@@ -237,7 +237,7 @@ ggplot(aes(x, y, label = l)) +
   theme_minimal()
 ```
 
-<img src="man/figures/README-unnamed-chunk-13-1.svg" width="100%" />
+<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
 
 # Lower triangle to correlation matrix
 
@@ -267,7 +267,7 @@ prob_label(p, accuracy = .01)
 proportion_round(p)
 #> [1] 0.0000 0.0010 0.0300 0.5000 0.9900 0.9940 0.9995 1.0000
 proportion2percentile(p, add_percent_character = TRUE)
-#> [1] "0%"     "0.1%"   "3%"     "50%"    "99%"    "99.4%"  "99.95%" "100%"
+#> [1] "%"      ".1%"    "3%"     "50%"    "99%"    "99.4%"  "99.95%" "100%"
 ```
 
 # Sizing text in ggplot2
@@ -287,7 +287,7 @@ tibble(x = 1:5, y = x) %>%
   coord_equal()
 ```
 
-<img src="man/figures/README-unnamed-chunk-16-1.svg" width="100%" />
+<img src="man/figures/README-unnamed-chunk-16-1.png" width="100%" />
 
 # Random beta distributions with specific means and standard deviations.
 
@@ -303,7 +303,7 @@ rbeta_ms(10000, .7, .1) %>%
   coord_cartesian(xlim = c(0, 1))
 ```
 
-<img src="man/figures/README-unnamed-chunk-17-1.svg" width="100%" />
+<img src="man/figures/README-unnamed-chunk-17-1.png" width="100%" />
 
 # Formatting numeric values
 
@@ -311,3 +311,96 @@ R has great formatting functions like `format` and `formatC`. I find
 `scales::number` to be particularly useful. However, I often have
 particular preferences that I do not want to keep specifying every time
 I need to format a number.
+
+## Remove leading zeroes
+
+For numbers between -1 and 1, leading zeroes are removed.
+
+``` r
+remove_leading_zero(c(-2, -0.051, 0.05, 2))
+#> [1] "-2.00" "-.05"  ".05"   "2.00"
+```
+
+## Formatting probabilities
+
+The `prob_label` function formats probabilities according to my
+preferences:
+
+1.  0 is `0` unless `round_zero_one` is `FALSE`.
+2.  1 is `1` unless `round_zero_one` is `FALSE`.
+3.  Other probabilities are rounded to the nearest .01 with the leading
+    removed.
+
+``` r
+prob_label(seq(0,1,0.2))
+#> [1] "0"   ".20" ".40" ".60" ".80" "1"
+```
+
+Setting the `digits` argument to 2 will round to 2 significant digits
+with the exception that probabilities near 1 are rounded to the first
+number that is not 9.
+
+``` r
+prob_label(c(.00122, .0122, .122, .99112, .999112), digits = 2)
+#> [1] ".0012" ".012"  ".12"   ".991"  ".9991"
+```
+
+The `proportion_round` rounds .
+
+``` r
+proportion_round(c(0,.0011,.5,.991, .99991, 1))
+#> [1] 0.00000 0.00100 0.50000 0.99100 0.99991 1.00000
+```
+
+## Formatting percentiles
+
+I like to round percentiles to nearest integer unless they are close to
+0 or 100.
+
+``` r
+
+tibble(z_scores = -4:4,
+       proportions = pnorm(z_scores),
+       percentiles = proportion2percentile(proportions, 
+                                           add_percent_character = TRUE)
+       )
+#> # A tibble: 9 x 3
+#>   z_scores proportions percentiles
+#>      <int>       <dbl> <chr>      
+#> 1       -4   0.0000317 .003%      
+#> 2       -3   0.00135   .1%        
+#> 3       -2   0.0228    2%         
+#> 4       -1   0.159     16%        
+#> 5        0   0.5       50%        
+#> 6        1   0.841     84%        
+#> 7        2   0.977     98%        
+#> 8        3   0.999     99.9%      
+#> 9        4   1.00      99.997%
+```
+
+## Formatting correlations
+
+I like to round correlations to the nearest .01 with leading zeroes
+removed. The diagonals are just 1s.
+
+``` r
+tri2cor(c(.4,.5,.66544)) %>% 
+  cor_text()
+#>      [,1]  [,2]  [,3] 
+#> [1,] "1"   ".40" ".50"
+#> [2,] ".40" "1"   ".67"
+#> [3,] ".50" ".67" "1"
+```
+
+If any correlation in the matrix is negative, the positive correlations
+get a leading space (to make the correlations easier to align in a plot
+or table).
+
+``` r
+tri2cor(c(.4,-.5,.66544)) %>% 
+  cor_text()
+#>      [,1]   [,2]   [,3]  
+#> [1,] "1"    " .40" "-.50"
+#> [2,] " .40" "1"    " .67"
+#> [3,] "-.50" " .67" "1"
+```

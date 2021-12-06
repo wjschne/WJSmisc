@@ -10,11 +10,12 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.path = "man/figures/README-",
   out.width = "100%", 
-  dev = "svg"
+  dev = "ragg_png"
 )
 library(psych)
 library(GPArotation)
 library(tidyverse)
+library(WJSmisc)
 ```
 
 # WJSmisc
@@ -41,6 +42,7 @@ library(WJSmisc)
 library(tidyverse)
 plotnorm(95, mu = 100, sigma = 15)
 ```
+
 
 # Correlation heat maps
 
@@ -268,5 +270,72 @@ rbeta_ms(10000, .7, .1) %>%
 
 R has great formatting functions like `format` and  `formatC`. I find `scales::number` to be particularly useful. However, I often have particular preferences that I do not want to keep specifying every time I need to format a number. 
 
+## Remove leading zeroes
 
+For numbers between -1 and 1, leading zeroes are removed.
+
+```{r}
+remove_leading_zero(c(-2, -0.051, 0.05, 2))
+```
+
+
+## Formatting probabilities
+
+The `prob_label` function formats probabilities according to my preferences:
+
+1. 0 is `0` unless `round_zero_one`  is `FALSE`.
+2. 1 is `1` unless `round_zero_one`  is `FALSE`.
+3. Other probabilities are rounded to the nearest .01 with the leading removed.
+
+
+```{r}
+prob_label(seq(0,1,0.2))
+```
+
+
+Setting the `digits` argument to 2 will round to 2 significant digits with the exception that probabilities near 1 are rounded to the first number that is not 9. 
+
+```{r}
+prob_label(c(.00122, .0122, .122, .99112, .999112), digits = 2)
+```
+
+The `proportion_round` rounds .
+
+```{r}
+proportion_round(c(0,.0011,.5,.991, .99991, 1))
+```
+
+
+## Formatting percentiles
+
+I like to round percentiles to nearest integer unless they are close to 0 or 100.
+
+```{r}
+
+
+tibble(z_scores = -4:4,
+       proportions = pnorm(z_scores),
+       percentiles = proportion2percentile(proportions, 
+                                           add_percent_character = TRUE)
+       )
+
+```
+
+## Formatting correlations
+
+I like to round correlations to the nearest .01 with leading zeroes removed. The diagonals are just 1s.
+
+```{r}
+tri2cor(c(.4,.5,.66544)) %>% 
+  cor_text()
+```
+
+
+If any correlation in the matrix is negative, the positive correlations get a leading space (to make the correlations easier to align in a plot or table).
+
+
+```{r}
+tri2cor(c(.4,-.5,.66544)) %>% 
+  cor_text()
+```
 

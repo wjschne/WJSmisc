@@ -4,4 +4,4 @@
 <script src="deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script>
 <link href="deps/_Ibarra%20Real%20Nova-0.4.0/font.css" rel="stylesheet" />
 <link href="deps/_Fira%20Code-0.4.0/font.css" rel="stylesheet" />
-<link href="deps/_Inter-0.4.0/font.css" rel="stylesheet" />
+<link href="deps/_Murecho-0.4.0/font.css" rel="stylesheet" />

@@ -425,7 +425,7 @@ proportion2percentile <- function(p,
                                   add_percent_character = FALSE) {
   p1 <- as.character(100 * proportion_round(p, digits = digits))
   if (remove_leading_zero) {
-    p1 <- remove_leading_zero(p1)
+    p1 <- stringr::str_remove(p1, "^0")
   }
 
   if (add_percent_character) {

@@ -1,9 +1,11 @@
 destination: docs
 template:
   bootstrap: 5
-  theme: zenburn
+  theme: arrow-light
   bslib:
     base_font: {google: "Ibarra Real Nova"}
-    heading_font: {google: "Inter"}
+    heading_font: {google: "Murecho"}
     code_font: {google: "Fira Code"}
+    bg: "#e4e9f7"
+    fg: "#2b3040"
 
