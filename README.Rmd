@@ -264,5 +264,9 @@ rbeta_ms(10000, .7, .1) %>%
 ```
 
 
+# Formatting numeric values
+
+R has great formatting functions like `format` and  `formatC`. I find `scales::number` to be particularly useful. However, I often have particular preferences that I do not want to keep specifying every time I need to format a number. 
+
 
 

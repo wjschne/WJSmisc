@@ -1,3 +1,9 @@
 destination: docs
 template:
   bootstrap: 5
+  theme: zenburn
+  bslib:
+    base_font: {google: "Ibarra Real Nova"}
+    heading_font: {google: "Inter"}
+    code_font: {google: "Fira Code"}
+

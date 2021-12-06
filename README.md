@@ -272,8 +272,8 @@ proportion2percentile(p, add_percent_character = TRUE)
 
 # Sizing text in ggplot2
 
-Text size in geom\_text and geom\_label does not use the same units as
-the rest of ggplot2.
+Text size in geom_text and geom_label does not use the same units as the
+rest of ggplot2.
 
 I use the `ggtext_size` function so that text from `geom_text` will be
 the same size as the axis labels.
@@ -304,3 +304,10 @@ rbeta_ms(10000, .7, .1) %>%
 ```
 
 <img src="man/figures/README-unnamed-chunk-17-1.svg" width="100%" />
+
+# Formatting numeric values
+
+R has great formatting functions like `format` and `formatC`. I find
+`scales::number` to be particularly useful. However, I often have
+particular preferences that I do not want to keep specifying every time
+I need to format a number.
