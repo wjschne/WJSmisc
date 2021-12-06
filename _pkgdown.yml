@@ -1,4 +1,4 @@
-destination: docs
+url: ~
 template:
   bootstrap: 5
   theme: arrow-light
@@ -8,4 +8,3 @@ template:
     code_font: {google: "Fira Code"}
     bg: "#e4e9f7"
     fg: "#2b3040"
-
