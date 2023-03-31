@@ -1582,4 +1582,3 @@ get_quote <- function(id, file, blockquote = TRUE) {
 }
 
 
-tibble::tibble(x = readLines("R/main.R") |> stringi::stri_enc_mark()) |> dplyr::mutate(dplyr::row_number()) |>  dplyr::filter(x != "ASCII")
