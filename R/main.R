@@ -26,27 +26,7 @@ ggsvg <- function(f, width = 6.5, height = 6.5, ...) {
 }
 
 
-#' Computes covariances of composite scores given a covariance matrix and a weight matrix
-#'
-#' @export
-#' @param Sigma Covariance matrix
-#' @param w Weight matrix. Must have the same number of rows as R
-#' @param correlation If TRUE, return correlations instead of covariances
-#' @examples
-#' # Create covariance matrix
-#' Sigma <- matrix(0.6, nrow = 5, ncol = 5)
-#' diag(Sigma) <- 1
-#' # Create weight matrix
-#' w <- matrix(0, nrow = 5, ncol = 2)
-#' w[1:2,1] <- 1
-#' w[3:5,2] <- 1
-#' w
-#' # covariance matrix of weighted sums
-#' composite_covariance(Sigma, w)
-composite_covariance <- function(Sigma,w, correlation = FALSE) {
-  Sigma_composite <- t(w) %*% Sigma %*% w
-  if (correlation) stats::cov2cor(Sigma_composite) else Sigma_composite
-  }
+
 
 #' Plot a normal distribution shading below x
 #'
@@ -54,7 +34,7 @@ composite_covariance <- function(Sigma,w, correlation = FALSE) {
 #' @param x number to divide normal distribution
 #' @param mu mean of normal distribution
 #' @param sigma standard deviation of normal distribution
-#' @param below If TRUE, shade lower portion of normal distribiton
+#' @param below If TRUE, shade lower portion of normal distribution
 #' @param show_proportion If TRUE, display proportions
 #' @param show_x If TRUE, display x value
 #' @param show_param If TRUE, display mean and standard deviation
@@ -177,6 +157,7 @@ plotnorm <- function(x = 0,
 #' @param f output of a factor analysis from the psych::fa function
 #' @param font_family Name of font
 #' @param font_size Size of font
+#' @param loading_text_size size of loading font,
 #' @param factor_names names of the factors #'
 #' @param nudge_loadings nudge loadings on x dimension
 #' @import patchwork
@@ -184,12 +165,14 @@ plotnorm <- function(x = 0,
 #' @import patchwork
 #' @importFrom rlang .data
 #' @examples
+#' library(GPArotation)
 #' library(psych)
 #' fit <- fa(psych::bfi[,1:25], nfactors = 5)
 #' plot_loading(fit)
 plot_loading <- function(f,
                          font_family = "sans",
                          font_size = 14,
+                         loading_text_size = font_size * .8,
                          factor_names = sort(colnames(f$loadings)),
                          nudge_loadings = 0.05) {
   factor_names <- stringr::str_replace_all(factor_names, "_", "\n")
@@ -214,11 +197,12 @@ plot_loading <- function(f,
               family = font_family,
               hjust = 1,
               nudge_x = nudge_loadings,
-              size = ggtext_size(font_size)) +
+              size = ggtext_size(loading_text_size, ratio = 1)) +
     scale_fill_gradient2(low = "firebrick", mid = "white", high = "royalblue", midpoint = 0, limits = c(-1,1)) +
+    scale_x_discrete(expand = expansion()) +
     theme_minimal(base_family = font_family, base_size = font_size) +
     labs(x = NULL, y = NULL) +
-    theme(legend.position = "none") +
+    theme(legend.position = "none", panel.grid = element_blank(), plot.title = element_text(family = font_family, size = font_size)) +
     ggtitle(paste0("Factor Loadings", ifelse(any(abs(f$loadings) > 1), " (Heywood case detected)","")))
 
   if (f$factors == 1) p1 else {
@@ -237,7 +221,7 @@ plot_loading <- function(f,
       geom_tile(aes(fill = .data$r)) +
       geom_text(aes(label = prob_label(.data$r)),
                 family = font_family,
-                size = ggtext_size(font_size),
+                size = ggtext_size(loading_text_size, ratio = 1),
                 hjust = 1,
                 nudge_x = nudge_loadings) +
       scale_fill_gradient2(
@@ -246,8 +230,9 @@ plot_loading <- function(f,
         high = "royalblue",
         midpoint = 0,
         limits = c(-1,1)) +
-      theme_minimal(base_family = font_family, base_size = 14) +
-      theme(legend.position = "none") +
+      scale_x_discrete(expand = expansion()) +
+      theme_minimal(base_family = font_family, base_size = font_size) +
+      theme(legend.position = "none", panel.grid = element_blank(), plot.title = element_text(family = font_family, size = font_size)) +
       labs(x = NULL, y = NULL) +
       ggtitle("Factor Correlations")
 
@@ -461,8 +446,9 @@ prob_label <- function(p,
     l <- scales::number(p, accuracy = accuracy)
   } else {
     sig_digits <- abs(ceiling(log10(p + p / 1000000000)) - digits)
-    sig_digits[p > 0.99] <- abs(ceiling(log10(1 - p[p > 0.99])) - digits + 1)
-    sig_digits[ceiling(log10(p)) == log10(p)] <- sig_digits[ceiling(log10(p)) == log10(p)] - 1
+    pgt99 <- p > 0.99
+    sig_digits[pgt99] <- abs(ceiling(log10(1 - p[pgt99])) - digits + 1)
+    sig_digits[ceiling(log10(p)) == log10(p) & (-log10(p) >= digits)] <- sig_digits[ceiling(log10(p)) == log10(p) & (-log10(p) >= digits)] - 1
     sig_digits[is.infinite(sig_digits)] <- 0
     l <- purrr::map2_chr(p,
                          sig_digits,
@@ -491,6 +477,9 @@ prob_label <- function(p,
     }
   }
 
+  l <- sub(pattern = "-", replacement = "\u2212", x = l)
+  Encoding(l) <- "UTF-8"
+
   dim(l) <- dim(p)
   l
 }
@@ -510,16 +499,16 @@ prob_label <- function(p,
 rbeta_ms <- function(n = 1,
                      mu = 0.5,
                      sigma = 0.025) {
-  if (sigma == 0)
+  if (any(sigma == 0))
     return(rep(mu, n))
 
   # Check to make sure mu is between 0 and 1
-  if (mu >= 1 | mu <= 0)
+  if (any(mu >= 1) | any(mu <= 0))
     stop("mu must be between 0 and 1.")
   # variance
   v <- sigma ^ 2
   # Check to make sure the variance is not impossibly large
-  if (v > mu * (1 - mu))
+  if (any(v > mu * (1 - mu)))
     stop("sigma is too large. sigma cannot be larger than mu * (1 - m).")
 
   # Hits
@@ -1001,7 +990,8 @@ lm_matrix <- function(R, ind, dep) {
   Rxy <- R[ind, dep, drop = F]
   b <- iR %*% Rxy
   R2 <- 1 - det(R) / det(Rxx)
-  list(b = b, R2 = R2)
+  sr2 <- (b ^ 2) / diag(iR)
+  list(b = b, R2 = R2, sr2 = sr2)
 }
 
 
@@ -1266,4 +1256,330 @@ angle2hjust <- function(theta, multiplier = 1.5, as_degrees = FALSE) {
 }
 
 
+#' Rotate a 2-column matrix
+#'
+#' @param x a 2-column matrix
+#' @param theta angle
+#' @param degrees if TRUE, theta is in degrees instead of radians
+#' @param origin point of rotation
+#'
+#'
+#' @return a rotated 2-column matrix
+#' @export
+#'
+#' @examples
+#' x <- matrix(seq(10), ncol = 2)
+#' rotate2dmatrix(x, pi)
+rotate2dmatrix <- function(x, theta, degrees = FALSE, origin = c(0,0)) {
 
+  if (!is.numeric(x)) stop("x must be numeric")
+  if (!is.numeric(origin)) stop("origin must be numeric")
+
+  if ("matrix" %in% class(x)) {
+    if (ncol(x) != 2) stop("x must be a 2-column matrix or a length-2 vector")
+  } else {
+    if (length(x) == 2) x = matrix(x, ncol = 2, nrow = 1) else stop("x must be a 2-column matrix or a length-2 vector")
+  }
+
+
+
+  if ("matrix" %in% class(origin)) {
+    if (ncol(origin) != 2) stop(
+      "origin must be a 2-column matrix or a length-2 vector")
+    if (nrow(origin == 1)) origin <- matrix(origin, nrow = nrow(x), ncol = 2, byrow = TRUE)
+    if (nrow(origin) != nrow(x)) stop(
+      "origin must have 1 row or the same number of rows as x")
+  } else {
+    if (length(origin) == 2) origin <- matrix(origin, nrow = nrow(x), ncol = 2, byrow = TRUE) else stop(
+      "origin must be a 2-column matrix or a length-2 vector")
+  }
+
+  if (degrees) theta <- theta * pi / 180
+
+  # https://www.wikiwand.com/en/Rotation_matrix
+
+    ((x - origin) %*%  matrix(c(cos(theta),
+                    -sin(theta),
+                    sin(theta),
+                    cos(theta)),
+                  nrow = 2, ncol = 2)) + origin
+}
+
+skewed_axis <- function(theta,
+                        axis_title = "X",
+                        draw_ticks = TRUE,
+                        draw_axis_text = TRUE,
+                        remove_origin = TRUE,
+                        tick_height = .02,
+                        lwd = .5,
+                        text_size = 12,
+                        color = NA,
+                        family = NA,
+                        mu = 0,
+                        sigma = 1,
+                        tick_label_interval = ifelse(sigma %% 3 == 0, 3, 2)) {
+  ticks <- seq(-4 * sigma + mu, 4 * sigma + mu, sigma / 3)
+  if (remove_origin)
+    ticks <- ticks[ticks != mu]
+
+  d_ticks <- cbind(x = ticks, y = mu) %>%
+    rotate2dmatrix(theta, origin = c(mu, mu)) %>%
+    `colnames<-`(c("x", "y")) %>%
+    tibble::as_tibble()
+
+  p <- geom_line(data = d_ticks,
+                 aes(x, y),
+                 lwd = lwd,
+                 color = color)
+
+  u_ticks <- cbind(x = ticks, y = mu + tick_height * sigma) %>%
+    rotate2dmatrix(theta, origin = c(mu, mu)) %>%
+    `colnames<-`(c("x", "y"))
+
+  l_ticks <- cbind(ticks, mu - tick_height * sigma) %>%
+    rotate2dmatrix(theta, origin = c(mu, mu)) %>%
+    `colnames<-`(c("xend", "yend"))
+
+  d_tick_lines <- dplyr::bind_cols(u_ticks, l_ticks)
+
+
+  if (draw_ticks) {
+    p <- list(p,
+              geom_segment(
+                data = d_tick_lines,
+                aes(
+                  x = x,
+                  y = y,
+                  xend  = xend,
+                  yend = yend
+                ),
+                lwd = lwd / 2,
+                lty = 1,
+                color = color
+              ))
+
+
+  }
+
+  if (draw_axis_text) {
+    tick_angle <-
+      ifelse(theta > pi / 2, (theta - pi) * 180 / pi , theta * 180 / pi)
+    tick_vjust <- ifelse(theta > pi / 2, 1, 1)
+
+    tick_labels <-
+      seq(-4 * sigma + mu, 4 * sigma + mu, tick_label_interval)
+    if (remove_origin)
+      tick_labels <- tick_labels[tick_labels != mu]
+
+    d_labels <- cbind(x = tick_labels, y = mu) %>%
+      rotate2dmatrix(theta, origin = c(mu, mu)) %>%
+      `colnames<-`(c("x", "y")) %>%
+      tibble::as_tibble()
+
+    p <- list(
+      p,
+      ggtext::geom_richtext(
+        data = d_labels,
+        aes(x, y, label = tick_labels),
+        label.margin = unit(1.5, "mm"),
+        label.color = NA,
+        vjust = tick_vjust,
+        angle = tick_angle,
+        size = ggtext_size(text_size),
+        color = color,
+        family = family,
+        label.padding = unit(0, "mm")
+      )
+    )
+  }
+  p
+
+}
+
+
+#' A wrapper for ggtext::geom_richtext
+#'
+#' @param mapping aes()
+#' @param label.margin grid unit margin
+#' @param label.padding grid unit margin
+#' @param label.color color
+#' @param fill color
+#' @param text_size text size in point units
+#' @param ... additional parameters passed to ggtext::geom_richtext
+#'
+#' @return ggtext::geom_richtext
+#' @export
+#'
+#' @examples
+#' library(tibble)
+#' library(ggplot2)
+#' library(dplyr)
+#' library(WJSmisc)
+#' tibble(x = 0, y = 0, l = "A") %>%
+#'   ggplot() +
+#'   geom_richlabel(aes(x,y,label = l))
+geom_richlabel <- function(mapping,
+                           label.margin = unit(2,"mm"),
+                           label.padding = unit(.5,"mm"),
+                           label.color = NA,
+                           fill = "white",
+                           text_size = 12,
+                           ...) {
+  ggtext::geom_richtext(
+    mapping = mapping,
+    label.margin = label.margin,
+    label.padding = label.padding,
+    label.color = label.color,
+    fill = fill,
+    size = ggtext_size(text_size),
+    ...
+  )
+}
+
+
+#' Convert snake case to subscript
+#'
+#' @param x character
+#' @param sep separator defaults to "_"
+#' @param prefix character prefix
+#' @param suffix character suffix
+#' @param collapse character parameter passed to paste0
+#' @param recycle0 parameter passed to paste0
+#'
+#' @return a character
+#' @export
+#'
+#' @examples
+#' snake2subscript("x_1")
+snake2subscript <- function(x,
+                            sep = "_",
+                            prefix = "<sub>",
+                            suffix = "</sub>",
+                            collapse = NULL,
+                            recycle0 = FALSE) {
+      paste0(
+        stringr::str_replace(x,
+                    pattern = sep,
+                    replacement = prefix),
+        suffix,
+        collapse = collapse,
+        recycle0 = recycle0)
+  }
+
+
+
+#' Compute the angle of a vector
+#'
+#' @param x A length-2 vector
+#' @param origin A length-2 vector
+#' @param degrees If TRUE, returns angles in degrees instead of radians
+#' @param allow_negative If TRUE, returns angles between -pi and pi (-180 and +180. If FALSE, returns angles between 0 and 2 * pi (0 and 360)
+#'
+#' @return A length-1 vector
+#' @export
+#'
+#' @examples
+#' vector_angle(c(1,1))
+#' vector_angle(c(1,1), degrees = TRUE)
+vector_angle <- function(x, origin = c(0, 0), degrees = FALSE, allow_negative = FALSE) {
+  if (length(x) != 2) stop("x must be a length-2 vector")
+  if (length(origin) != 2) stop("origin must be a length-2 vector")
+  x_0 <- x - origin
+  theta <- atan2(x_0[2], x_0[1])
+  if (theta < 0 & !allow_negative) theta <- 2 * pi + theta
+  if (degrees) theta <- theta * 180 / pi
+
+  theta
+}
+
+
+#' Name for square arrays like correlation matrices
+#'
+#' @param x a square array, matrix, or data.frame
+#' @param value a vector of names
+#'
+#' @return a named square array, matrix, or data.frame
+#' @export
+#'
+#' @examples
+#' R <- tri2cor(.5)
+#' cornames(R) <- c("A", "B")
+`cornames<-` <- function(x, value) {
+  dimnames(x) <- list(value, value)
+  x
+}
+
+
+#' Converts a correlation matrix to a partial correlation matrix
+#'
+#' @param R correlation matrix
+#'
+#' @return Partial correlation matrix
+#' @export
+#'
+#' @examples
+#' R <- matrix(.6, nrow = 3, ncol = 3)
+#' diag(R) <- 1
+#' cor2pcor(R)
+cor2pcor <- function(R) {
+  K <- solve(R)
+  P <- stats::cov2cor(K) * -1
+  diag(P) <- 1
+  P
+}
+
+#' IRT Plot Shiny App
+#' @export
+irt_plot_app <- function() {
+  shiny::runApp(appDir = system.file('shiny/irtplot', package='WJSmisc'))
+}
+
+
+#' Retrieve text within a div with a named id
+#'
+#' @param id the id string (without #).
+#' @param file file name
+#' @param blockquote return as block quote (defaults to TRUE)
+#'
+#' @return a character vector of length 1
+#' @export
+get_quote <- function(id, file, blockquote = TRUE) {
+
+  # Insert blockquote text
+  if (blockquote) {
+    blockchr <- "\n> "
+    } else {
+    blockchr <- ""
+  }
+
+  #read in lines from file
+  filetext <- readLines(file)
+
+  # collapse lines and search for span with id
+  s <- filetext |>
+    paste0(collapse = "\n") |>
+    stringr::str_match(pattern = paste0("(?<=\\[).+(?=\\]\\{\\#",
+                               id,
+                               "\\})"))  |>
+    getElement(1)
+
+  # If no span found, search for div with id
+  if (is.na(s)) {
+    s <- filetext |>
+      paste0(collapse = "|||") |>
+      stringr::str_match(pattern = paste0(":::\\{\\#",
+                                 id,
+                                 "\\}(.*?):::"))  |>
+      getElement(2) |>
+      stringr::str_replace_all("\\|\\|\\|", blockchr)
+  } else {
+    s <- paste0(blockchr, s)
+  }
+
+  if (is.na(s)) stop("Could not find id = ", id)
+
+  s
+}
+
+
+tibble::tibble(x = readLines("R/main.R") |> stringi::stri_enc_mark()) |> dplyr::mutate(dplyr::row_number()) |>  dplyr::filter(x != "ASCII")

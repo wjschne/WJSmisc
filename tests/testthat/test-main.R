@@ -32,5 +32,33 @@ test_that("prob_label", {
 })
 
 
+test_that("rotate2dmatrix",{
+  # x and origin must be numeric
+  expect_error(rotate2dmatrix(c("x", "y"), theta = pi),
+               regexp = "x must be numeric")
+  expect_error(rotate2dmatrix(c(0,1), theta = pi, origin = c("x", "y")),
+               regexp = "origin must be numeric")
+
+  # x is vector but not of length 2
+  expect_error(rotate2dmatrix(c(0,1,2), theta = pi),
+               regexp = "x must be a 2-column matrix or a length-2 vector")
+  # x is a matrix but not with 2 columns
+  expect_error(rotate2dmatrix(matrix(c(0,1)), theta = pi),
+               regexp = "x must be a 2-column matrix or a length-2 vector")
+
+
+  # origin is a vector but not of length 2
+  expect_error(rotate2dmatrix(c(0,1),
+                              theta = pi,
+                              origin = c(0,1,2)),
+               regexp = "origin must be a 2-column matrix or a length-2 vector")
+  # origin is a matrix but not with 2 columns
+  expect_error(
+    rotate2dmatrix(matrix(c(0,1), ncol = 2),
+                   theta = pi,
+                   origin = matrix(2, nrow = 2, ncol = 1)),
+    regexp = "origin must be a 2-column matrix or a length-2 vector")
+})
+
 
 

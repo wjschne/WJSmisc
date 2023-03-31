@@ -25,6 +25,12 @@
     <loc>/reference/composite_covariance.html</loc>
   </url>
   <url>
+    <loc>/reference/cor2pcor.html</loc>
+  </url>
+  <url>
+    <loc>/reference/cornames-set.html</loc>
+  </url>
+  <url>
     <loc>/reference/cor_ellipse.html</loc>
   </url>
   <url>
@@ -40,6 +46,12 @@
     <loc>/reference/df2matrix.html</loc>
   </url>
   <url>
+    <loc>/reference/geom_richlabel.html</loc>
+  </url>
+  <url>
+    <loc>/reference/get_quote.html</loc>
+  </url>
+  <url>
     <loc>/reference/ggsvg.html</loc>
   </url>
   <url>
@@ -50,6 +62,9 @@
   </url>
   <url>
     <loc>/reference/insert_latex_color.html</loc>
+  </url>
+  <url>
+    <loc>/reference/irt_plot_app.html</loc>
   </url>
   <url>
     <loc>/reference/latexarray.html</loc>
@@ -106,10 +121,19 @@
     <loc>/reference/remove_leading_zero.html</loc>
   </url>
   <url>
+    <loc>/reference/rotate2dmatrix.html</loc>
+  </url>
+  <url>
+    <loc>/reference/snake2subscript.html</loc>
+  </url>
+  <url>
     <loc>/reference/tidyeval.html</loc>
   </url>
   <url>
     <loc>/reference/tri2cor.html</loc>
+  </url>
+  <url>
+    <loc>/reference/vector_angle.html</loc>
   </url>
   <url>
     <loc>/reference/x2z.html</loc>

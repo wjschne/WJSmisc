@@ -24,7 +24,7 @@ plotnorm(
 
 \item{sigma}{standard deviation of normal distribution}
 
-\item{below}{If TRUE, shade lower portion of normal distribiton}
+\item{below}{If TRUE, shade lower portion of normal distribution}
 
 \item{show_proportion}{If TRUE, display proportions}
 

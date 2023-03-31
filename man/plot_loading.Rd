@@ -8,6 +8,7 @@ plot_loading(
   f,
   font_family = "sans",
   font_size = 14,
+  loading_text_size = font_size * 0.8,
   factor_names = sort(colnames(f$loadings)),
   nudge_loadings = 0.05
 )
@@ -19,6 +20,8 @@ plot_loading(
 
 \item{font_size}{Size of font}
 
+\item{loading_text_size}{size of loading font,}
+
 \item{factor_names}{names of the factors #'}
 
 \item{nudge_loadings}{nudge loadings on x dimension}
@@ -27,6 +30,7 @@ plot_loading(
 Creats a plot of factor loadings
 }
 \examples{
+library(GPArotation)
 library(psych)
 fit <- fa(psych::bfi[,1:25], nfactors = 5)
 plot_loading(fit)
