@@ -2,7 +2,7 @@
 % Please edit documentation in R/main.R
 \name{get_quote}
 \alias{get_quote}
-\title{Retrieve text within a div with a named id}
+\title{Retrieve text within a span or div with a named id}
 \usage{
 get_quote(id, file, blockquote = TRUE)
 }
@@ -17,5 +17,5 @@ get_quote(id, file, blockquote = TRUE)
 a character vector of length 1
 }
 \description{
-Retrieve text within a div with a named id
+Retrieve text within a span or div with a named id
 }

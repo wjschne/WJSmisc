@@ -1535,7 +1535,7 @@ irt_plot_app <- function() {
 }
 
 
-#' Retrieve text within a div with a named id
+#' Retrieve text within a span or div with a named id
 #'
 #' @param id the id string (without #).
 #' @param file file name
