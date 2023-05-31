@@ -1759,29 +1759,3 @@ str_wrap_equal <- function(x, max_width = 30L, sep = "\n") {
 
 }
 
-library(ggplot2)
-library(stringr)
-d <- data.frame(
-  Item = c(
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    "Duis pretium arcu quis nibh elementum, sed aliquam enim dignissim.",
-    "Nullam et ornare enim, et egestas odio.",
-    "Aliquam posuere ante quis magna rutrum, id elementum nulla sodales.",
-    "Interdum et malesuada fames ac ante ipsum primis in faucibus.",
-    "Aenean rutrum lorem at metus pretium, malesuada porta tellus facilisis.",
-    "Vestibulum at convallis enim.",
-    "Nam malesuada bibendum rutrum.",
-    "Donec risus sapien, pulvinar vitae porttitor non, lobortis ac felis."
-  ),
-  Proportion = seq(.1,.9,.1)
-) |>
-  dplyr::mutate(Item = forcats::fct_inorder(Item))
-
-ggplot(d, aes(Proportion, Item)) +
-  geom_col() +
-  scale_y_discrete(NULL, labels = \(x) str_wrap(x, width = 25L))
-
-ggplot(d, aes(Proportion, Item)) +
-  geom_col() +
-  scale_y_discrete(NULL, labels = \(x) str_wrap_equal(x, max_width = 25L))
-
