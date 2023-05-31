@@ -4,10 +4,12 @@
 \alias{tri2cor}
 \title{Create square correlation matrix from lower triangle}
 \usage{
-tri2cor(x)
+tri2cor(x, variable_names = NULL)
 }
 \arguments{
 \item{x}{vector of correlations}
+
+\item{variable_names}{a vector of variable names}
 }
 \value{
 square matrix

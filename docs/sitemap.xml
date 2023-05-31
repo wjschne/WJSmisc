@@ -124,7 +124,16 @@
     <loc>/reference/rotate2dmatrix.html</loc>
   </url>
   <url>
+    <loc>/reference/signs_centered.html</loc>
+  </url>
+  <url>
+    <loc>/reference/skewed_axis.html</loc>
+  </url>
+  <url>
     <loc>/reference/snake2subscript.html</loc>
+  </url>
+  <url>
+    <loc>/reference/str_wrap_equal.html</loc>
   </url>
   <url>
     <loc>/reference/tidyeval.html</loc>

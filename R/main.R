@@ -181,6 +181,9 @@ plot_loading <- function(f,
                                    Factor_labels = factor_names) %>%
     dplyr::mutate(Factor_labels = forcats::fct_inorder(.data$Factor_labels))
 
+  # This line does nothing, but it prevents a warning.
+  x <- GPArotation::echelon
+
   p1 <- f %>%
     psych::fa.sort() %>%
     `[[`("loadings") %>%
@@ -998,13 +1001,14 @@ lm_matrix <- function(R, ind, dep) {
 #' Create square correlation matrix from lower triangle
 #'
 #' @param x vector of correlations
+#' @param variable_names a vector of variable names
 #'
 #' @return square matrix
 #' @export
 #'
 #' @examples
 #' tri2cor(c(.2,.3,.4))
-tri2cor <- function(x) {
+tri2cor <- function(x, variable_names = NULL) {
   l <- length(x)
   n <- (1 + sqrt(1 + 8 * l)) / 2
   if (n != round(n)) stop("Not a square matrix")
@@ -1012,6 +1016,9 @@ tri2cor <- function(x) {
   R[lower.tri(R)] <- x
   R <- R + t(R)
   diag(R) <- 1
+  if (!is.null(variable_names)) {
+    cornames(R) <- variable_names
+  }
   R
 }
 
@@ -1305,6 +1312,34 @@ rotate2dmatrix <- function(x, theta, degrees = FALSE, origin = c(0,0)) {
                   nrow = 2, ncol = 2)) + origin
 }
 
+#' Draw skewed axes in ggplot2
+#'
+#' @param theta angle in radians
+#' @param axis_title character
+#' @param draw_ticks logical
+#' @param draw_axis_text logical
+#' @param remove_origin logical
+#' @param tick_height height of ticks
+#' @param lwd line width
+#' @param text_size size of text
+#' @param color color of lines
+#' @param family font family
+#' @param mu mean of variable
+#' @param sigma standard deviation of variable
+#' @param tick_label_interval interval of ticks
+#'
+#' @return plot
+#' @importFrom ggplot2 .data
+#' @export
+#'
+#' @examples
+#' library(ggplot2)
+#' ggplot(data.frame(x = c(0,1), y = c(4,4))) +
+#'   skewed_axis(pi / 2, color = "black") +
+#'   skewed_axis(pi / 4, color = "black") +
+#'   skewed_axis(0, color = "black") +
+#'   theme_void() +
+#'   coord_equal()
 skewed_axis <- function(theta,
                         axis_title = "X",
                         draw_ticks = TRUE,
@@ -1328,7 +1363,7 @@ skewed_axis <- function(theta,
     tibble::as_tibble()
 
   p <- geom_line(data = d_ticks,
-                 aes(x, y),
+                 aes(.data$x, .data$y),
                  lwd = lwd,
                  color = color)
 
@@ -1348,10 +1383,10 @@ skewed_axis <- function(theta,
               geom_segment(
                 data = d_tick_lines,
                 aes(
-                  x = x,
-                  y = y,
-                  xend  = xend,
-                  yend = yend
+                  x = .data$x,
+                  y = .data$y,
+                  xend  = .data$xend,
+                  yend = .data$yend
                 ),
                 lwd = lwd / 2,
                 lty = 1,
@@ -1374,13 +1409,14 @@ skewed_axis <- function(theta,
     d_labels <- cbind(x = tick_labels, y = mu) %>%
       rotate2dmatrix(theta, origin = c(mu, mu)) %>%
       `colnames<-`(c("x", "y")) %>%
-      tibble::as_tibble()
+      tibble::as_tibble() |>
+      dplyr::mutate(tick_labels = tick_labels)
 
     p <- list(
       p,
       ggtext::geom_richtext(
         data = d_labels,
-        aes(x, y, label = tick_labels),
+        aes(x = .data$x, .data$y, label = .data$tick_labels),
         label.margin = unit(1.5, "mm"),
         label.color = NA,
         vjust = tick_vjust,
@@ -1544,18 +1580,70 @@ irt_plot_app <- function() {
 #' @return a character vector of length 1
 #' @export
 get_quote <- function(id, file, blockquote = TRUE) {
+  blocktext <- ifelse(blockquote, "\n> ", "")
 
-  # Insert blockquote text
-  if (blockquote) {
-    blockchr <- "\n> "
-    } else {
-    blockchr <- ""
+  refreplace <- function(x) {
+    # List of sequence types
+    crossrefs <- c(`@fig-` = "Figure",
+                   `@fig-` = "Table",
+                   `@eq-` = "Equation",
+                   `@thm-` = "Lemma",
+                   `@lem-` = "Corollary",
+                   `@cor-` = "Proposition",
+                   `@prp-` = "Conjecture",
+                   `@cnj-` = "Definition",
+                   `@def-` = "Example",
+                   `@exm-` = "Example",
+                   `@exr-` = "Exercise",
+                   `apafg-` = "Figure",
+                   `apatb-` = "Figure"
+    )
+
+    # Find all crossreference types and number them
+    make_replacements <- function(x, reftype, prefix) {
+      regstring <- ifelse(stringr::str_starts(reftype, "\\@"),
+                          paste0("\\", reftype, "(.*?)(?=[\\.\\?\\!\\]\\}\\s,])"),
+                          paste0("\\{", reftype, "(.*?)\\}"))
+      patterns <- stringr::str_extract_all(string = x, pattern = regstring) |>
+        unlist() |>
+        unique() |>
+        stringr::str_replace("\\{", "\\\\{") |>
+        stringr::str_replace("\\}", "\\\\}")
+
+      if (all(is.na(patterns))) return(NULL)
+      replacements <- paste(prefix, seq_along(patterns))
+      names(replacements) <- patterns
+      replacements
+    }
+    allreplacements <- purrr::map2(
+      names(crossrefs),
+      crossrefs,
+      \(rt, pf) make_replacements(
+        x = x,
+        reftype = rt,
+        prefix = pf)) |>
+      unlist()
+
+
+    stringr::str_replace_all(x, allreplacements)
+
   }
 
-  #read in lines from file
-  filetext <- readLines(file)
+  filetext <- readLines(file) |>
+    refreplace()
 
-  # collapse lines and search for span with id
+  idcount <- sum(stringr::str_count(filetext, paste0("#", id)))
+  if (idcount > 1)
+    stop(paste0(
+      "The id (",
+      id ,
+      ") is not unique. There are ",
+      idcount,
+      " instances of id = ",
+      id,
+      "."
+    ))
+
   s <- filetext |>
     paste0(collapse = "\n") |>
     stringr::str_match(pattern = paste0("(?<=\\[).+(?=\\]\\{\\#",
@@ -1563,7 +1651,6 @@ get_quote <- function(id, file, blockquote = TRUE) {
                                "\\})"))  |>
     getElement(1)
 
-  # If no span found, search for div with id
   if (is.na(s)) {
     s <- filetext |>
       paste0(collapse = "|||") |>
@@ -1571,14 +1658,130 @@ get_quote <- function(id, file, blockquote = TRUE) {
                                  id,
                                  "\\}(.*?):::"))  |>
       getElement(2) |>
-      stringr::str_replace_all("\\|\\|\\|", blockchr)
+      stringr::str_replace_all("\\|\\|\\|", blocktext)
   } else {
-    s <- paste0(blockchr, s)
+    s <- paste0(blocktext, s)
   }
 
-  if (is.na(s)) stop("Could not find id = ", id)
+  if (is.na(s)) stop("Could not find a div or span with id = ", id)
 
   s
 }
 
+#' centered signed numbers
+#'
+#'
+#' A wrapper function for the signs::signs function. It adds a figure space to negative numbers so that it appear as if the minus sign does not affect the number's centering.
+#' @param x a numeric vector
+#' @param space a character to be added to negative numbers (defaults to a figure space)
+#' @param ... parameters passed to signs:signs
+#'
+#' @return a vector of numbers converted to characters
+#' @export
+#'
+#' @examples
+#' library(ggplot2)
+#' d <- data.frame(x = -4:0, y = -4:0)
+#' # In these 2 plots, Compare the centering of the negative numbers on the x-axis
+#' ggplot(d, aes(x,y))
+#' ggplot(d, aes(x,y)) +
+#'   scale_x_continuous(labels = signs_centered)
+
+signs_centered <- function(x, space = "\u2007", ...) {
+  x_new <- paste0(signs::signs(x, ...), ifelse(x < 0, space, ""))
+  Encoding(x_new) <- "UTF-8"
+  x_new
+}
+
+
+#' Wrap sentence strings into lines of roughly equal width
+#'
+#' @param x a character vector
+#' @param max_width the maximum number of characters in a line (unless a word is longer than `max_width`)
+#' @param sep character string that separates text lines
+#'
+#' @return a character vector
+#' @export
+#'
+#' @examples
+#' library(ggplot2)
+#' library(stringr)
+#' library(dplyr)
+#' d <- data.frame(
+#'   Item = c(
+#'     "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+#'     "Duis pretium arcu quis nibh elementum, sed aliquam enim dignissim.",
+#'     "Nullam et ornare enim, et egestas odio.",
+#'     "Aliquam posuere ante quis magna rutrum, id elementum nulla sodales.",
+#'     "Interdum et malesuada fames ac ante ipsum primis in faucibus.",
+#'     "Aenean rutrum lorem at metus pretium, malesuada porta tellus facilisis.",
+#'     "Vestibulum at convallis enim.",
+#'     "Nam malesuada bibendum rutrum.",
+#'     "Donec risus sapien, pulvinar vitae porttitor non, lobortis ac felis."
+#'   ),
+#'   Proportion = seq(.1,.9,.1)
+#' ) |>
+#'   mutate(Item = forcats::fct_inorder(Item))
+#'
+#' # Axis labels with stringr::str_wrap
+#' ggplot(d, aes(Proportion, Item)) +
+#'   geom_col() +
+#'   scale_y_discrete(NULL, labels = \(x) str_wrap(x, width = 25L))
+#'
+#' # Axis labels with WJSmisc::str_wrap_equal
+#' ggplot(d, aes(Proportion, Item)) +
+#'   geom_col() +
+#'   scale_y_discrete(NULL, labels = \(x) str_wrap_equal(x, max_width = 25L))
+str_wrap_equal <- function(x, max_width = 30L, sep = "\n") {
+  purrr::map_chr(x, \(xi) {
+    xi <- stringr::str_replace(xi, "\n", " ") |> stringr::str_replace("/", "/ ")
+    xlen <- stringr::str_length(xi)
+    k <- ceiling(xlen / max_width)
+    preferred_width <- xlen / k
+    words <- stringr::str_split(xi, pattern = " ", simplify = F)[[1]]
+    k_words <- length(words)
+    word_len <- stringr::str_length(words)
+    textlines <- rep("", k + 10)
+    i <- 1
+    for (w in seq(k_words)) {
+      current_width <- stringr::str_length(textlines[i])
+      proposed_width <- current_width + word_len[w] + 1
+      current_difference <- abs(current_width - preferred_width)
+      proposed_difference <- abs(proposed_width - preferred_width)
+      if (current_difference < proposed_difference | proposed_width > max_width) {
+        i <- i + 1
+      }
+      textlines[i] <- stringr::str_trim(paste(textlines[i], words[w])) |>
+        stringr::str_replace("/ ", "/")
+    }
+    paste0(textlines[stringr::str_length(textlines) > 0], collapse = sep)
+  })
+
+}
+
+library(ggplot2)
+library(stringr)
+d <- data.frame(
+  Item = c(
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    "Duis pretium arcu quis nibh elementum, sed aliquam enim dignissim.",
+    "Nullam et ornare enim, et egestas odio.",
+    "Aliquam posuere ante quis magna rutrum, id elementum nulla sodales.",
+    "Interdum et malesuada fames ac ante ipsum primis in faucibus.",
+    "Aenean rutrum lorem at metus pretium, malesuada porta tellus facilisis.",
+    "Vestibulum at convallis enim.",
+    "Nam malesuada bibendum rutrum.",
+    "Donec risus sapien, pulvinar vitae porttitor non, lobortis ac felis."
+  ),
+  Proportion = seq(.1,.9,.1)
+) |>
+  dplyr::mutate(Item = forcats::fct_inorder(Item))
+
+ggplot(d, aes(Proportion, Item)) +
+  geom_col() +
+  scale_y_discrete(NULL, labels = \(x) str_wrap(x, width = 25L))
+
+ggplot(d, aes(Proportion, Item)) +
+  geom_col() +
+  scale_y_discrete(NULL, labels = \(x) str_wrap_equal(x, max_width = 25L))
 
